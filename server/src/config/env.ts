@@ -43,6 +43,12 @@ const EnvSchema = z.object({
   GOOGLE_CLIENT_ID: z
     .string({ error: "GOOGLE_CLIENT_ID is required" })
     .default(""),
+  GOOGLE_CLIENT_SECRET: z
+    .string({ error: "GOOGLE_CLIENT_SECRET is required" })
+    .default(""),
+  GOOGLE_REDIRECT_URI: z
+    .string({ error: "GOOGLE_REDIRECT_URI is required" })
+    .default(""),
   TMDB_API_KEY: z.string({ error: "TMDB_API_KEY is required" }).default(""),
   TMDB_BASE_URL: z.string({ error: "TMDB_BASE_URL is required" }).default(""),
 

@@ -69,9 +69,56 @@ export const getMovieById = withErrorHandler(async (req, res) => {
     if (!response.data) {
       throw new NotFoundError(MovieError.MOVIE_NOT_FOUND);
     }
+
+    const movie = response.data;
+    const urlPath = `https://image.tmdb.org/t/p/w500`;
+    const originalUrlPath = `https://image.tmdb.org/t/p/original`;
     res.json({
       status: ApiResponseStatus.SUCCESS,
-      data: response.data,
+      data: {
+        adult: movie.adult,
+        backdropPath: `${originalUrlPath}${movie.backdrop_path}`,
+        belongsToCollection: {
+          id: movie.belongs_to_collection?.id,
+          name: movie.belongs_to_collection?.name,
+          posterPath: `${urlPath}${movie.belongs_to_collection?.poster_path}`,
+          backdrop_path: `${originalUrlPath}${movie.belongs_to_collection?.backdrop_path}`,
+        },
+        budget: movie.budget,
+        genres: movie.genres,
+        homepage: movie.homepage,
+        id: movie.id,
+        imdbId: movie.imdb_id,
+        originCountry: movie.origin_country,
+        originalLanguage: movie.original_language,
+        originalTitle: movie.original_title,
+        overview: movie.overview,
+        popularity: movie.popularity,
+        posterPath: `${urlPath}${movie.poster_path}`,
+        productionCompanies: movie.production_companies.map(
+          (productionCompany: any) => ({
+            id: productionCompany.id,
+            logoPath: `${originalUrlPath}${productionCompany.logo_path}`,
+            name: productionCompany.name,
+            originCountry: productionCompany.origin_country,
+          })
+        ),
+        productionCountries: movie.production_countries,
+        releaseDate: movie.release_date,
+        revenue: movie.revenue,
+        runtime: movie.runtime,
+        spokenLanguages: movie.spoken_languages.map((spokenLanguage: any) => ({
+          englishName: spokenLanguage.english_name,
+          iso6391: spokenLanguage.iso_639_1,
+          name: spokenLanguage.name,
+        })),
+        status: movie.status,
+        tagline: movie.tagline,
+        title: movie.title,
+        video: movie.video,
+        voteAverage: movie.vote_average,
+        voteCount: movie.vote_count,
+      },
     });
   } catch (err) {
     if (err instanceof AxiosError) {

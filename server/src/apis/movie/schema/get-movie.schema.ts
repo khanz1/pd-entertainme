@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 export const GetMovieSchema = z.object({
-  page: z.number().default(1),
+  page: z
+    .string()
+    .transform((val) => parseInt(val))
+    .default(1),
   type: z
     .enum(["popular", "top_rated", "upcoming", "now_playing", "search"])
     .default("popular"),

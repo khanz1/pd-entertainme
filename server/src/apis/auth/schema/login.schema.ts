@@ -27,8 +27,14 @@ export const LoginSchema = z.object({
 export type ILoginSchema = z.infer<typeof LoginSchema>;
 
 
+// export const LoginWithGoogleSchema = z.object({
+//   googleIdToken: z.string({ error: "Google ID token is required" }),
+// });
+
+// export type ILoginWithGoogleSchema = z.infer<typeof LoginWithGoogleSchema>;
+
 export const LoginWithGoogleSchema = z.object({
-  googleIdToken: z.string({ error: "Google ID token is required" }),
+  code: z.string({ error: "Code is required" }),
 });
 
 export type ILoginWithGoogleSchema = z.infer<typeof LoginWithGoogleSchema>;

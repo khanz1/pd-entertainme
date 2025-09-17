@@ -72,9 +72,9 @@ User.init(
       type: DataTypes.STRING,
       allowNull: true,
       // field: "profile_pict", // Maps to snake_case column in DB
-      validate: {
-        isUrl: true,
-      },
+      // validate: {
+      //   isUrl: true,
+      // },
     },
     email: {
       type: DataTypes.STRING,

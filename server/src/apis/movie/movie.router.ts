@@ -4,9 +4,9 @@ import { authenticatation } from "@middleware/authentication";
 
 const movieRouter = Router();
 
-movieRouter.use(authenticatation);
 movieRouter.get("/", MovieController.getMovies);
-movieRouter.get("/recommendations", MovieController.getRecommendations);
 movieRouter.get("/:id", MovieController.getMovieById);
+movieRouter.use(authenticatation);
+movieRouter.get("/recommendations", MovieController.getRecommendations);
 
 export default movieRouter;
