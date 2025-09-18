@@ -10,6 +10,8 @@ RUN npm ci --legacy-peer-deps
 
 # copy your source & build
 COPY . .
+
+# Build the application
 RUN npm run build
 
 # --------------------------------------
