@@ -1,6 +1,6 @@
-import { verifyToken } from "@utils/crypto";
-import { UnauthorizedError, withErrorHandler } from "@utils/error";
-import { User } from "@models";
+import { verifyToken } from "../utils/crypto";
+import { UnauthorizedError, withErrorHandler } from "../utils/error";
+import { User } from "../models";
 import { AuthenticatedRequest } from "../types/express.type";
 
 export enum AuthenticationError {

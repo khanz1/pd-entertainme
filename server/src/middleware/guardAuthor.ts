@@ -1,6 +1,6 @@
-import { ForbiddenError, NotFoundError, withErrorHandler } from "@utils/error";
-import { AuthenticatedRequest } from "types/express.type";
-import { Favorite } from "@models";
+import { ForbiddenError, NotFoundError, withErrorHandler } from "../utils/error";
+import { AuthenticatedRequest } from "../types/express.type";
+import { Favorite } from "../models";
 
 export const guardAuthor = withErrorHandler<AuthenticatedRequest>(
   async (req, res, next) => {

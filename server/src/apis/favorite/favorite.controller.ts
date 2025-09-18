@@ -1,12 +1,12 @@
 import { Favorite, Genre, Movie, MovieGenre } from "../../models";
-import { withErrorHandler } from "@utils/error";
+import { withErrorHandler } from "../../utils/error";
 import { ApiResponseStatus } from "../app.type";
 import { CreateFavoriteSchema } from "./schema/create.schema";
 import { type AuthenticatedRequest } from "../../types/express.type";
 import { DeleteFavoriteSchema } from "./schema/delete.schema";
 import * as MovieService from "../movie/movie.service";
 import { UniqueConstraintError } from "sequelize";
-import { BadRequestError } from "@utils/error";
+import { BadRequestError } from "../../utils/error";
 import { movieRecommendationQueue } from "../movie/recommendation.queue";
 import { QueueJobName } from "../../queue";
 import { Env } from "../../config/env";

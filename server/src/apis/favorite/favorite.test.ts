@@ -4,7 +4,7 @@ import app from "../../app";
 import { ApiResponseStatus } from "../app.type";
 import sequelize from "../../config/database";
 import { Favorite, User } from "../../models";
-import { signToken } from "@utils/crypto";
+import { signToken } from "../../utils/crypto";
 import * as MovieService from "../movie/movie.service";
 
 let accessToken: string;

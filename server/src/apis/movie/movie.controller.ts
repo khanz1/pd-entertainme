@@ -2,7 +2,7 @@ import {
   InternalServerError,
   NotFoundError,
   withErrorHandler,
-} from "@utils/error";
+} from "../../utils/error";
 import { tmdbAPI } from "../../utils/http";
 import { GetMovieByIdSchema, GetMovieSchema } from "./schema/get-movie.schema";
 import {
@@ -10,12 +10,12 @@ import {
   TMDBNowPlayingMovie,
   type TMDBMovieResponse,
 } from "./tmdb.type";
-import { Movie, Recommendation } from "@models";
+import { Movie, Recommendation } from "../../models";
 import { ApiResponseStatus } from "../app.type";
 import { MovieError } from "./movie.type";
 import { AxiosError } from "axios";
 import { ErrorMessage } from "../../types/error.type";
-import { AuthenticatedRequest } from "types/express.type";
+import { AuthenticatedRequest } from "../../types/express.type";
 
 /**
  * @swagger
