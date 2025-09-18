@@ -33,10 +33,12 @@ import {
   Star,
   Play,
 } from "lucide-react";
-import { useLoginMutation } from "@/features/movies/movie.api";
-import { setCredentials } from "@/features/movies/movie.slice";
+import {
+  useLoginMutation,
+  useGoogleLoginMutation,
+} from "@/features/auth/auth.api";
+import { setCredentials } from "@/features/auth/auth.slice";
 import { useGoogleLogin } from "@react-oauth/google";
-import { serverApi } from "@/lib/http";
 import { toast } from "sonner";
 import {
   LoginFormSchema,
@@ -49,6 +51,7 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [login, { isLoading }] = useLoginMutation();
+  const [googleLogin] = useGoogleLoginMutation();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(LoginFormSchema),
@@ -62,19 +65,24 @@ export function LoginPage() {
     flow: "auth-code",
     redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI,
     onSuccess: async (tokenResponse) => {
-      const result = await serverApi.post("/auth/login/google", {
-        code: tokenResponse.code,
-      });
+      try {
+        const result = await googleLogin({
+          code: tokenResponse.code,
+        }).unwrap();
 
-      dispatch(
-        setCredentials({
-          user: result.data.user,
-          accessToken: result.data.accessToken,
-        })
-      );
+        dispatch(
+          setCredentials({
+            user: result.data.user,
+            accessToken: result.data.accessToken,
+          })
+        );
 
-      toast("Login successful! Welcome back!");
-      navigate("/");
+        toast("Login successful! Welcome back!");
+        navigate("/");
+      } catch (err: any) {
+        console.error("Google login failed:", err);
+        toast(err?.data?.message || "Google login failed. Please try again.");
+      }
     },
   });
 

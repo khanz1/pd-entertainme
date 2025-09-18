@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { baseApi } from "@/services/baseApi";
-import { authReducer, movieReducer } from "@/features/movies/movie.slice";
+import { authReducer } from "@/features/auth/auth.slice";
+import { movieReducer } from "@/features/movies/movie.slice";
 
 export const store = configureStore({
   reducer: {

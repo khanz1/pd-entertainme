@@ -33,8 +33,8 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
-import { useRegisterMutation } from "@/features/movies/movie.api";
-import { setCredentials } from "@/features/movies/movie.slice";
+import { useRegisterMutation } from "@/features/auth/auth.api";
+import { setCredentials } from "@/features/auth/auth.slice";
 import { toast } from "sonner";
 import {
   RegisterFormSchema,

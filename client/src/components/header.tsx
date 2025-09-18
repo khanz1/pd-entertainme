@@ -13,8 +13,8 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Heart, LogOut, User } from "lucide-react";
 import { useAppSelector } from "@/hooks/useRedux";
-import { logout, setCredentials } from "@/features/movies/movie.slice";
-import { useGetUserMeQuery } from "@/features/movies/movie.api";
+import { logout, setCredentials } from "@/features/auth/auth.slice";
+import { useGetUserMeQuery } from "@/features/auth/auth.api";
 
 export function Header() {
   const navigate = useNavigate();

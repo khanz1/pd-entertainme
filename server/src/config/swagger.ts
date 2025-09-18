@@ -8,32 +8,28 @@ const options: swaggerJsdoc.Options = {
       title: "Entertain Me API",
       version: "1.0.0",
       description: `
-        ## Your Gateway to Cinematic Excellence
+        Your Gateway to Cinematic Excellence
         
-        Welcome to the **Entertain Me API** - a comprehensive movie discovery platform that leverages artificial intelligence to provide personalized movie recommendations.
+        Welcome to the Entertain Me API
+        A comprehensive movie discovery platform that leverages artificial intelligence to provide personalized movie recommendations.
         
-        ### Features
-        - 🎬 **Movie Discovery**: Browse thousands of movies with advanced filtering
-        - 🤖 **AI Recommendations**: Get personalized suggestions powered by OpenAI GPT-5 nano
-        - ❤️ **Favorites Management**: Save and organize your favorite movies
-        - 🔐 **Secure Authentication**: JWT-based auth with Google OAuth support
-        - ⚡ **Queue Processing**: Background AI recommendation generation
+        Features
+        - 🎬 Movie Discovery: Browse thousands of movies with advanced filtering
+        - 🤖 AI Recommendations: Get personalized suggestions powered by OpenAI GPT-5 nano
+        - ❤️ Favorites Management: Save and organize your favorite movies
+        - 🔐 Secure Authentication: JWT-based auth with Google OAuth support
+        - ⚡ Queue Processing: Background AI recommendation generation
         
-        ### Getting Started
-        1. **Authentication**: Register or login to get your access token
-        2. **Browse Movies**: Explore our extensive movie catalog
-        3. **Add Favorites**: Build your personal collection
-        4. **Get Recommendations**: Receive AI-powered suggestions
-        
-        ### Rate Limiting
-        - **General endpoints**: 100 requests per minute
-        - **AI recommendations**: 10 requests per hour
-        - **Authentication**: 20 requests per minute
+        Getting Started
+        1. Authentication: Register or login to get your access token
+        2. Browse Movies: Explore our extensive movie catalog
+        3. Add Favorites: Build your personal collection
+        4. Get Recommendations: Receive AI-powered suggestions
       `,
       contact: {
-        name: "Entertain Me Support",
-        email: "support@entertainme.com",
-        url: "https://entertainme.vercel.app",
+        name: Env.DOCS_CONTACT_NAME,
+        email: Env.DOCS_CONTACT_EMAIL,
+        url: Env.DOCS_CONTACT_WEB,
       },
       license: {
         name: "MIT",
@@ -44,7 +40,7 @@ const options: swaggerJsdoc.Options = {
       {
         url:
           Env.NODE_ENV === "production"
-            ? "https://your-ec2-domain.com"
+            ? Env.DOCS_SERVER_URL
             : `http://localhost:${Env.PORT}`,
         description:
           Env.NODE_ENV === "production"
