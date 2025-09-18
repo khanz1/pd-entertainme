@@ -57,7 +57,7 @@ jobs:
           script: |
             # Create app directory and environment file
             mkdir -p ~/app
-            cat << 'EOF' > ~/app/.env
+            cat << 'EOF' > ~/app/.env.production
             ${{ secrets.PROD_ENV_FILE }}
             EOF
 
@@ -76,12 +76,12 @@ jobs:
             fi
 
             # Source environment variables and start the main application
-            source ~/app/.env
+            source ~/app/.env.production
             echo "🚀 Starting pd-entertainme-server application on port ${PORT:-8000}..."
             docker run -d \
               --name pd-entertainme-server \
               --restart unless-stopped \
-              --env-file ~/app/.env \
+              --env-file ~/app/.env.production \
               -p ${PORT:-8000}:${PORT:-8000} \
               ${{ secrets.DOCKERHUB_USERNAME }}/pd-entertainme-server:latest
 
