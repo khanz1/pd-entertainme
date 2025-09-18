@@ -1,32 +1,44 @@
-import winston from "winston";
+import pino from "pino";
 import { Env } from "../config/env";
 
-export const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.json(),
-  defaultMeta: { service: "entertainme-server" },
-  transports: [
-    //
-    // - Write all logs with importance level of `error` or higher to `error.log`
-    //   (i.e., error, fatal, but not other levels)
-    //
-    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
-    //
-    // - Write all logs with importance level of `info` or higher to `combined.log`
-    //   (i.e., fatal, error, warn, and info, but not trace)
-    //
-    new winston.transports.File({ filename: "logs/combined.log" }),
-  ],
-});
+const isProduction = Env.NODE_ENV === "production";
+const isTest = Env.NODE_ENV === "test";
 
-//
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-//
-if (Env.NODE_ENV !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    })
-  );
-}
+// Create base logger configuration
+const baseConfig = {
+  name: "entertainme-server",
+  level: isProduction ? "info" : "debug",
+  base: {
+    pid: process.pid,
+    hostname: undefined, // Remove hostname for cleaner logs
+  },
+};
+
+// Configure transport for non-production environments
+export const logger = pino(
+  isProduction || isTest
+    ? {
+        ...baseConfig,
+        // Production/Test: JSON logs for better machine parsing
+        formatters: {
+          level: (label) => {
+            return { level: label };
+          },
+        },
+      }
+    : {
+        ...baseConfig,
+        // Development: Pretty logs for better human readability
+        transport: {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "yyyy-mm-dd HH:MM:ss",
+            ignore: "pid,hostname",
+            singleLine: false,
+            hideObject: false,
+            // messageFormat: "[{name}] {msg}",
+          },
+        },
+      }
+);

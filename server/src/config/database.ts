@@ -1,10 +1,11 @@
 import { Sequelize } from "sequelize";
 import { Env } from "./env";
+import { logger } from "../utils/logger";
 
 // Database configuration using PostgreSQL
 const sequelize = new Sequelize(Env.DATABASE_URL, {
   dialect: "postgres",
-  logging: Env.NODE_ENV === "development" ? console.log : false,
+  logging: Env.NODE_ENV === "development" ? (sql) => logger.info(sql) : false,
   define: {
     timestamps: true,
     underscored: false,

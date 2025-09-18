@@ -5,13 +5,11 @@ import { guardAuthor } from "../../middleware/guardAuthor";
 
 const favoriteRouter = Router();
 
-favoriteRouter.post("/", authenticatation, FavoriteController.createFavorite);
-favoriteRouter.get("/", authenticatation, FavoriteController.getFavorites);
-favoriteRouter.delete(
-  "/:id",
-  authenticatation,
-  guardAuthor,
-  FavoriteController.deleteFavorite
-);
+favoriteRouter.use(authenticatation);
+favoriteRouter.post("/", FavoriteController.createFavorite);
+favoriteRouter.get("/", FavoriteController.getFavorites);
+favoriteRouter.get("/movie/:tmdbId", FavoriteController.getFavoriteByMovie);
+favoriteRouter.get("/:id", FavoriteController.getFavoriteById);
+favoriteRouter.delete("/:id", guardAuthor, FavoriteController.deleteFavorite);
 
 export default favoriteRouter;

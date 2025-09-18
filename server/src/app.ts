@@ -7,8 +7,23 @@ import appRouter from "./apis/app.router";
 import { globalErrorHandler } from "./utils/error";
 import swaggerSpecs from "./config/swagger";
 import { Env } from "./config/env";
+import { logger } from "./utils/logger";
 
 const app = express();
+
+// Request logging middleware
+app.use((req, res, next) => {
+  logger.info(
+    {
+      method: req.method,
+      url: req.url,
+      path: req.path,
+      userAgent: req.get("User-Agent"),
+    },
+    `${req.method} ${req.path}`
+  );
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,7 +34,6 @@ app.use(
     contentSecurityPolicy: false, // Disable CSP for Swagger UI
   })
 );
-app.use(morgan("common"));
 
 // Root redirect to documentation
 app.get("/", (_req, res) => {
@@ -90,29 +104,30 @@ app.use(
 );
 
 // API Documentation JSON
-app.get("/api/docs.json", (req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.send(swaggerSpecs);
-});
+// app.get("/api/docs.json", (req, res) => {
+//   res.setHeader("Content-Type", "application/json");
+//   res.send(swaggerSpecs);
+// });
 
 // Debug endpoint to check swagger specs in development
-if (Env.NODE_ENV === "development") {
-  app.get("/api/debug/swagger", (req, res) => {
-    const specs = swaggerSpecs as any;
-    res.json({
-      message: "Swagger Specs Debug Info",
-      specsExists: !!swaggerSpecs,
-      pathsCount: specs?.paths ? Object.keys(specs.paths).length : 0,
-      paths: specs?.paths ? Object.keys(specs.paths) : [],
-      tags: specs?.tags || [],
-      environment: Env.NODE_ENV,
-      swaggerVersion: specs?.openapi || specs?.swagger,
-    });
-  });
-}
+// if (Env.NODE_ENV === "development") {
+//   app.get("/api/debug/swagger", (req, res) => {
+//     const specs = swaggerSpecs as any;
+//     res.json({
+//       message: "Swagger Specs Debug Info",
+//       specsExists: !!swaggerSpecs,
+//       pathsCount: specs?.paths ? Object.keys(specs.paths).length : 0,
+//       paths: specs?.paths ? Object.keys(specs.paths) : [],
+//       tags: specs?.tags || [],
+//       environment: Env.NODE_ENV,
+//       swaggerVersion: specs?.openapi || specs?.swagger,
+//     });
+//   });
+// }
 
 // Root API endpoint with documentation link
 app.get("/api", (req, res) => {
+  logger.info("API root endpoint accessed");
   res.json({
     message: "Welcome to Entertain Me API",
     version: "1.0.0",

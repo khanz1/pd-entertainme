@@ -12,6 +12,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { RootLayout } from "./layouts/RootLayout";
 import { AuthLayout } from "./layouts/AuthLayout";
 import { UnAuthLayout } from "./layouts/UnAuthLayout";
+import { ProfilePage } from "./pages/Profile.page";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
               <Route path="/movies/:id" element={<MovieDetailPage />} />
               <Route element={<AuthLayout />}>
                 <Route path="/favorites" element={<FavoritePage />} />
+                <Route path="/profile" element={<ProfilePage />} />
               </Route>
             </Route>
           </Routes>

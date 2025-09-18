@@ -1,15 +1,18 @@
-import { Favorite, Genre, Movie, MovieGenre } from "../../models";
-import { withErrorHandler } from "../../utils/error";
+import { Favorite, Genre, Movie, MovieGenre, User } from "../../models";
+import { withErrorHandler, NotFoundError } from "../../utils/error";
 import { ApiResponseStatus } from "../app.type";
 import { CreateFavoriteSchema } from "./schema/create.schema";
 import { type AuthenticatedRequest } from "../../types/express.type";
 import { DeleteFavoriteSchema } from "./schema/delete.schema";
+import { GetFavoriteByIdSchema } from "./schema/get.schema";
+import { GetFavoriteByMovieSchema } from "./schema/get-by-movie.schema";
 import * as MovieService from "../movie/movie.service";
 import { UniqueConstraintError } from "sequelize";
 import { BadRequestError } from "../../utils/error";
 import { movieRecommendationQueue } from "../movie/recommendation.queue";
 import { QueueJobName } from "../../queue";
 import { Env } from "../../config/env";
+// import { GetFavoriteByIdSchema } from "./schema/get.schema";
 
 export enum FavoriteError {
   MOVIE_NOT_FOUND = "Movie not found in our database",
@@ -273,6 +276,239 @@ export const getFavorites = withErrorHandler<AuthenticatedRequest>(
       status: ApiResponseStatus.SUCCESS,
       data: favorites,
     });
+  }
+);
+
+/**
+ * @swagger
+ * /api/favorites/{id}:
+ *   get:
+ *     summary: Get Favorite by ID
+ *     description: Retrieve a specific favorite movie by its favorite record ID. Returns detailed information including movie data, genres, and user information.
+ *     tags: [Favorites]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Favorite record ID
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Favorite retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   $ref: '#/components/schemas/FavoriteDetail'
+ *             example:
+ *               status: "success"
+ *               data:
+ *                 id: 1
+ *                 userId: 1
+ *                 movieId: 1
+ *                 movie:
+ *                   id: 1
+ *                   tmdbId: 550
+ *                   title: "Fight Club"
+ *                   overview: "A ticking-time-bomb insomniac..."
+ *                   releaseDate: "1999-10-15"
+ *                   posterPath: "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+ *                   backdropPath: "https://image.tmdb.org/t/p/w500/fCayJrkfRaCRCTh8GqN30f8oyQF.jpg"
+ *                   voteAverage: 8.4
+ *                   voteCount: 26280
+ *                   popularity: 61.416
+ *                   adult: false
+ *                   originalLanguage: "en"
+ *                 genres:
+ *                   - id: 18
+ *                     name: "Drama"
+ *                 user:
+ *                   id: 1
+ *                   name: "John Doe"
+ *                 createdAt: "2024-01-15T10:30:00Z"
+ *                 updatedAt: "2024-01-15T10:30:00Z"
+ *       400:
+ *         description: Invalid favorite ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               statusCode: 400
+ *               status: "error"
+ *               message: "ID must be a number"
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               statusCode: 401
+ *               status: "error"
+ *               message: "Invalid token"
+ *       404:
+ *         description: Favorite not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               statusCode: 404
+ *               status: "error"
+ *               message: "Favorite not found"
+ */
+export const getFavoriteById = withErrorHandler<AuthenticatedRequest>(
+  async (req, res) => {
+    const { id } = await GetFavoriteByIdSchema.parseAsync(req.params);
+    const favorite = await Favorite.findByPk(id, {
+      include: [
+        {
+          model: Movie,
+          as: "movie",
+          include: [
+            {
+              model: Genre,
+              as: "genres",
+              attributes: ["id", "name"],
+              through: { attributes: [] }, // Exclude junction table attributes
+            },
+          ],
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "name"],
+        },
+      ],
+    });
+
+    if (!favorite) {
+      throw new NotFoundError("Favorite not found");
+    }
+
+    res.json({ status: ApiResponseStatus.SUCCESS, data: favorite });
+  }
+);
+
+/**
+ * @swagger
+ * /api/favorites/movie/{tmdbId}:
+ *   get:
+ *     summary: Get Favorite by Movie TMDB ID
+ *     description: Retrieve a user's favorite record for a specific movie using the TMDB movie ID. This is useful for checking if a movie is favorited and getting the favorite record details.
+ *     tags: [Favorites]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: tmdbId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: TMDB movie ID
+ *         example: 550
+ *     responses:
+ *       200:
+ *         description: Favorite found for the movie
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   $ref: '#/components/schemas/FavoriteDetail'
+ *             example:
+ *               status: "success"
+ *               data:
+ *                 id: 1
+ *                 userId: 1
+ *                 movieId: 1
+ *                 movie:
+ *                   id: 1
+ *                   tmdbId: 550
+ *                   title: "Fight Club"
+ *                   overview: "A ticking-time-bomb insomniac..."
+ *                   releaseDate: "1999-10-15"
+ *                   posterPath: "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+ *                   voteAverage: 8.4
+ *                   voteCount: 26280
+ *                 createdAt: "2024-01-15T10:30:00Z"
+ *                 updatedAt: "2024-01-15T10:30:00Z"
+ *       400:
+ *         description: Invalid TMDB ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               statusCode: 400
+ *               status: "error"
+ *               message: "TMDB ID must be a number"
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               statusCode: 401
+ *               status: "error"
+ *               message: "Invalid token"
+ *       404:
+ *         description: Movie not favorited by user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               statusCode: 404
+ *               status: "error"
+ *               message: "Favorite not found for this movie"
+ */
+export const getFavoriteByMovie = withErrorHandler<AuthenticatedRequest>(
+  async (req, res) => {
+    const { tmdbId } = await GetFavoriteByMovieSchema.parseAsync(req.params);
+
+    const favorite = await Favorite.findOne({
+      where: {
+        userId: req.user!.id,
+      },
+      include: [
+        {
+          model: Movie,
+          as: "movie",
+          where: {
+            tmdbId,
+          },
+          include: [
+            {
+              model: Genre,
+              as: "genres",
+              attributes: ["id", "name"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!favorite) {
+      throw new NotFoundError("Favorite not found for this movie");
+    }
+
+    res.json({ status: ApiResponseStatus.SUCCESS, data: favorite });
   }
 );
 

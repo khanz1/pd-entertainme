@@ -18,6 +18,8 @@ import {
 import {
   useGetMovieDetailQuery,
   useAddFavoriteMutation,
+  useGetFavoriteByMovieQuery,
+  useRemoveFavoriteMutation,
 } from "@/features/movies/movie.api";
 import { useAppSelector } from "@/hooks/useRedux";
 import { toast } from "sonner";
@@ -28,8 +30,7 @@ export function MovieDetailPage() {
   const movieId = Number.parseInt(routeParams.id as string);
 
   const { isAuthenticated } = useAppSelector((state) => state.auth);
-  const [isAddingMovieToFavorites, setIsAddingMovieToFavorites] =
-    useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
   const {
     data: movieDetailResponse,
@@ -37,28 +38,42 @@ export function MovieDetailPage() {
     error: movieDetailError,
   } = useGetMovieDetailQuery(movieId);
 
+  // Fetch specific favorite for this movie to get the favorite ID for removal
+  const { data: favoriteResponse } = useGetFavoriteByMovieQuery(movieId, {
+    skip: !isAuthenticated,
+  });
+
   const [addMovieToFavorites] = useAddFavoriteMutation();
+  const [removeMovieFromFavorites] = useRemoveFavoriteMutation();
 
   const movieDetail = movieDetailResponse?.data;
+  const currentFavorite = favoriteResponse?.data;
 
-  const handleAddToFavorites = async () => {
+  const handleToggleFavorite = async () => {
     if (!isAuthenticated) {
-      toast("Please login to add movies to favorites");
+      toast("Please login to manage favorites");
       return;
     }
 
     if (!movieDetail) return;
 
-    setIsAddingMovieToFavorites(true);
+    setIsTogglingFavorite(true);
+
     try {
-      await addMovieToFavorites({ tmdbId: movieDetail.id }).unwrap();
-      toast("Movie added to favorites!");
-      navigateToPage("/favorites");
+      if (movieDetail.isFavorite && currentFavorite) {
+        // Remove from favorites
+        await removeMovieFromFavorites(currentFavorite.id).unwrap();
+        toast("Movie removed from favorites!");
+      } else {
+        // Add to favorites
+        await addMovieToFavorites({ tmdbId: movieDetail.id }).unwrap();
+        toast("Movie added to favorites!");
+      }
     } catch (error: any) {
-      console.error("Failed to add to favorites:", error);
-      toast(error?.data?.message || "Failed to add movie to favorites");
+      console.error("Failed to toggle favorite:", error);
+      toast(error?.data?.message || "Failed to update favorites");
     } finally {
-      setIsAddingMovieToFavorites(false);
+      setIsTogglingFavorite(false);
     }
   };
 
@@ -257,19 +272,27 @@ export function MovieDetailPage() {
                 </Button>
                 {isAuthenticated && (
                   <Button
-                    variant="outline"
+                    variant={movieDetail.isFavorite ? "default" : "outline"}
                     size="lg"
                     className="gap-2"
-                    onClick={handleAddToFavorites}
-                    disabled={isAddingMovieToFavorites}
+                    onClick={handleToggleFavorite}
+                    disabled={isTogglingFavorite}
                   >
-                    {isAddingMovieToFavorites ? (
+                    {isTogglingFavorite ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Heart className="h-4 w-4" />
+                      <Heart
+                        className={`h-4 w-4 ${
+                          movieDetail.isFavorite ? "fill-current" : ""
+                        }`}
+                      />
                     )}
-                    {isAddingMovieToFavorites
-                      ? "Adding..."
+                    {isTogglingFavorite
+                      ? movieDetail.isFavorite
+                        ? "Removing..."
+                        : "Adding..."
+                      : movieDetail.isFavorite
+                      ? "Remove from Favorites"
                       : "Add to Favorites"}
                   </Button>
                 )}

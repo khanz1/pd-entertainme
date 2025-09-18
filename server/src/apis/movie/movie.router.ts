@@ -10,6 +10,6 @@ movieRouter.get(
   authenticatation,
   MovieController.getRecommendations
 );
-movieRouter.get("/:id", MovieController.getMovieById);
+movieRouter.get("/:id", authenticatation, MovieController.getMovieById);
 
 export default movieRouter;
