@@ -684,8 +684,8 @@ const options: swaggerJsdoc.Options = {
     ],
   },
   apis: [
-    "./src/apis/**/*.ts",
-    ...(process.env.NODE_ENV === "production" ? ["./**/*.js"] : []),
+    "./src/apis/**/*.ts", // Development: TypeScript source files
+    "./dist/apis/**/*.js", // Production: Compiled JavaScript files
   ],
 };
 
