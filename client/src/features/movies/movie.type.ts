@@ -82,6 +82,7 @@ export interface BelongsToCollection {
 }
 
 export interface MovieDetail {
+  isFavorite: boolean;
   adult: boolean;
   backdropPath: string;
   belongsToCollection: BelongsToCollection | null;

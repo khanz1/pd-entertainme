@@ -3,6 +3,7 @@ import { calculateRecommendations } from "./recommendation.service";
 import { QueueJobName } from "../../queue";
 import IORedis from "ioredis";
 import { Env } from "../../config/env";
+import { logger } from "../../utils/logger";
 
 const connection = new IORedis(Env.REDIS_URL, {
   maxRetriesPerRequest: null,
@@ -18,9 +19,15 @@ const worker = new Worker(
   async (job) => {
     const jobs = await movieRecommendationQueue.getJobs(["waiting"], 0, 100);
 
-    console.log(jobs, "<<< waiting");
+    logger.debug(
+      { waitingJobs: jobs.length },
+      "Movie recommendation queue: checking waiting jobs"
+    );
     if (job.name === QueueJobName.MOVIE_RECOMMENDATION) {
-      console.log(`${job.id} starting movie recommendation`);
+      logger.info(
+        { jobId: job.id, userId: job.data.userId },
+        "Movie recommendation job: starting processing"
+      );
       await calculateRecommendations(job.data.userId);
     }
   },
@@ -34,12 +41,15 @@ const queueEvents = new QueueEvents(QueueJobName.MOVIE_RECOMMENDATION, {
 });
 
 queueEvents.on("completed", ({ jobId }: { jobId: string }) => {
-  console.log(`${jobId} done movie recommendation`);
+  logger.info({ jobId }, "Movie recommendation job: completed successfully");
 });
 
 queueEvents.on(
   "failed",
   ({ jobId, failedReason }: { jobId: string; failedReason: string }) => {
-    console.error(`${jobId} error movie recommendation`, failedReason);
+    logger.error(
+      { jobId, failedReason },
+      "Movie recommendation job: failed with error"
+    );
   }
 );

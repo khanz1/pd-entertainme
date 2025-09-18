@@ -677,10 +677,10 @@ const options: swaggerJsdoc.Options = {
         name: "Favorites",
         description: "User's favorite movies management",
       },
-      {
-        name: "Recommendations",
-        description: "AI-powered movie recommendations",
-      },
+      // {
+      //   name: "Recommendations",
+      //   description: "AI-powered movie recommendations",
+      // },
     ],
   },
   apis: [

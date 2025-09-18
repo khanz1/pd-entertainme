@@ -10,12 +10,13 @@ import {
   TMDBNowPlayingMovie,
   type TMDBMovieResponse,
 } from "./tmdb.type";
-import { Movie, Recommendation } from "../../models";
+import { Favorite, Movie, Recommendation } from "../../models";
 import { ApiResponseStatus } from "../app.type";
 import { MovieError } from "./movie.type";
 import { AxiosError } from "axios";
 import { ErrorMessage } from "../../types/error.type";
 import { AuthenticatedRequest } from "../../types/express.type";
+import { logger } from "../../utils/logger";
 
 /**
  * @swagger
@@ -204,75 +205,114 @@ export const getMovies = withErrorHandler(async (req, res) => {
  *               status: "error"
  *               message: "ID must be a number"
  */
-export const getMovieById = withErrorHandler(async (req, res) => {
-  const { id } = await GetMovieByIdSchema.parseAsync(req.params);
-  try {
-    const response = await tmdbAPI.get<ITMDBMovieDetail>(`/movie/${id}`);
+export const getMovieById = withErrorHandler<AuthenticatedRequest>(
+  async (req, res) => {
+    logger.debug("Starting getMovieById request");
+    try {
+      const { id } = await GetMovieByIdSchema.parseAsync(req.params);
+      logger.debug({ movieId: id }, "Fetching movie details from TMDB");
+      const response = await tmdbAPI.get<ITMDBMovieDetail>(`/movie/${id}`);
 
-    if (!response.data) {
-      throw new NotFoundError(MovieError.MOVIE_NOT_FOUND);
-    }
-
-    const movie = response.data;
-    const urlPath = `https://image.tmdb.org/t/p/w500`;
-    const originalUrlPath = `https://image.tmdb.org/t/p/original`;
-    res.json({
-      status: ApiResponseStatus.SUCCESS,
-      data: {
-        adult: movie.adult,
-        backdropPath: `${originalUrlPath}${movie.backdrop_path}`,
-        belongsToCollection: {
-          id: movie.belongs_to_collection?.id,
-          name: movie.belongs_to_collection?.name,
-          posterPath: `${urlPath}${movie.belongs_to_collection?.poster_path}`,
-          backdrop_path: `${originalUrlPath}${movie.belongs_to_collection?.backdrop_path}`,
-        },
-        budget: movie.budget,
-        genres: movie.genres,
-        homepage: movie.homepage,
-        id: movie.id,
-        imdbId: movie.imdb_id,
-        originCountry: movie.origin_country,
-        originalLanguage: movie.original_language,
-        originalTitle: movie.original_title,
-        overview: movie.overview,
-        popularity: movie.popularity,
-        posterPath: `${urlPath}${movie.poster_path}`,
-        productionCompanies: movie.production_companies.map(
-          (productionCompany: any) => ({
-            id: productionCompany.id,
-            logoPath: `${originalUrlPath}${productionCompany.logo_path}`,
-            name: productionCompany.name,
-            originCountry: productionCompany.origin_country,
-          })
-        ),
-        productionCountries: movie.production_countries,
-        releaseDate: movie.release_date,
-        revenue: movie.revenue,
-        runtime: movie.runtime,
-        spokenLanguages: movie.spoken_languages.map((spokenLanguage: any) => ({
-          englishName: spokenLanguage.english_name,
-          iso6391: spokenLanguage.iso_639_1,
-          name: spokenLanguage.name,
-        })),
-        status: movie.status,
-        tagline: movie.tagline,
-        title: movie.title,
-        video: movie.video,
-        voteAverage: movie.vote_average,
-        voteCount: movie.vote_count,
-      },
-    });
-  } catch (err) {
-    if (err instanceof AxiosError) {
-      if (err.response?.status === 404) {
+      if (!response.data) {
+        logger.warn({ movieId: id }, "Movie not found in TMDB");
         throw new NotFoundError(MovieError.MOVIE_NOT_FOUND);
-      } else {
-        throw new InternalServerError(ErrorMessage.INTERNAL_SERVER_ERROR);
       }
+
+      logger.debug(
+        { movieId: id, userId: req.user!.id },
+        "Checking if movie is favorited by user"
+      );
+      const favorite = await Favorite.findOne({
+        where: {
+          userId: req.user!.id,
+        },
+        include: [
+          {
+            model: Movie,
+            as: "movie",
+            where: {
+              tmdbId: id,
+            },
+          },
+        ],
+      });
+
+      const movie = response.data;
+      const urlPath = `https://image.tmdb.org/t/p/w500`;
+      const originalUrlPath = `https://image.tmdb.org/t/p/original`;
+
+      logger.info(
+        { movieId: id, movieTitle: movie.title },
+        "Successfully retrieved movie details"
+      );
+
+      res.json({
+        status: ApiResponseStatus.SUCCESS,
+        data: {
+          isFavorite: favorite ? true : false,
+          adult: movie.adult,
+          backdropPath: `${originalUrlPath}${movie.backdrop_path}`,
+          belongsToCollection: {
+            id: movie.belongs_to_collection?.id,
+            name: movie.belongs_to_collection?.name,
+            posterPath: `${urlPath}${movie.belongs_to_collection?.poster_path}`,
+            backdrop_path: `${originalUrlPath}${movie.belongs_to_collection?.backdrop_path}`,
+          },
+          budget: movie.budget,
+          genres: movie.genres,
+          homepage: movie.homepage,
+          id: movie.id,
+          imdbId: movie.imdb_id,
+          originCountry: movie.origin_country,
+          originalLanguage: movie.original_language,
+          originalTitle: movie.original_title,
+          overview: movie.overview,
+          popularity: movie.popularity,
+          posterPath: `${urlPath}${movie.poster_path}`,
+          productionCompanies: movie.production_companies.map(
+            (productionCompany: any) => ({
+              id: productionCompany.id,
+              logoPath: `${originalUrlPath}${productionCompany.logo_path}`,
+              name: productionCompany.name,
+              originCountry: productionCompany.origin_country,
+            })
+          ),
+          productionCountries: movie.production_countries,
+          releaseDate: movie.release_date,
+          revenue: movie.revenue,
+          runtime: movie.runtime,
+          spokenLanguages: movie.spoken_languages.map(
+            (spokenLanguage: any) => ({
+              englishName: spokenLanguage.english_name,
+              iso6391: spokenLanguage.iso_639_1,
+              name: spokenLanguage.name,
+            })
+          ),
+          status: movie.status,
+          tagline: movie.tagline,
+          title: movie.title,
+          video: movie.video,
+          voteAverage: movie.vote_average,
+          voteCount: movie.vote_count,
+        },
+      });
+    } catch (err) {
+      logger.error(
+        { error: err, movieId: req.params.id },
+        "Error fetching movie details"
+      );
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 404) {
+          throw new NotFoundError(MovieError.MOVIE_NOT_FOUND);
+        } else {
+          throw new InternalServerError(ErrorMessage.INTERNAL_SERVER_ERROR);
+        }
+      }
+
+      throw err;
     }
   }
-});
+);
 
 /**
  * @swagger

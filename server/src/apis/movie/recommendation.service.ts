@@ -1,12 +1,19 @@
-import { Favorite, Movie, Recommendation } from "../../models";
+import { Favorite, Movie, Recommendation, sequelize } from "../../models";
 import { openaiClient } from "../../lib/openai";
 import { z } from "zod";
 import { logger } from "../../utils/logger";
 import * as movieService from "./movie.service";
 
+const getPrompt = (movieTitles: string[]) => {
+  return `
+  Generate a movie recommendation list of 5-15 movie titles that are similar to the following: 
+  ${movieTitles.join(", ")}.
+  `;
+};
+
 export const calculateRecommendations = async (userId: number) => {
   try {
-    // get all movies that the user has favorited - takes only movie title
+    //? get all movies that the user has favorited - takes only movie title
     const favoritedMovies = await Favorite.findAll({
       where: {
         userId,
@@ -20,9 +27,9 @@ export const calculateRecommendations = async (userId: number) => {
     });
 
     const movieTitles = favoritedMovies.map((favorite) => favorite.movie.title);
-    console.log(
-      "1. [calculateRecommendations] Movie references >>>",
-      movieTitles
+    logger.info(
+      { movieTitles, userId },
+      "calculateRecommendations: Starting with user's favorite movie references"
     );
 
     const MovieRecommendation = z.object({
@@ -30,10 +37,12 @@ export const calculateRecommendations = async (userId: number) => {
     });
 
     // generate a prompt for the openai api - result all recommendations movie min 5 max 15 - movie title only
-    const prompt = `
-  Generate a movie recommendation list of 5-15 movie titles that are similar to the following: 
-  ${movieTitles.join(", ")}.
-  `;
+    const prompt = getPrompt(movieTitles);
+
+    logger.debug(
+      { prompt, userId },
+      "calculateRecommendations: Generated OpenAI prompt"
+    );
 
     const response = await openaiClient.responses.parse({
       model: "gpt-5-nano",
@@ -65,15 +74,15 @@ export const calculateRecommendations = async (userId: number) => {
       },
     });
     const data = response.output_parsed;
-    console.log(
-      "2. [calculateRecommendations] Movie Recommendations >>>",
-      data
+    logger.info(
+      { recommendations: data, userId },
+      "calculateRecommendations: Received AI movie recommendations"
     );
     if (!data) {
-      logger.info({
-        message: "No recommendations found",
-        level: "info",
-      });
+      logger.warn(
+        { userId },
+        "calculateRecommendations: No recommendations received from AI"
+      );
       return;
     }
 
@@ -82,9 +91,9 @@ export const calculateRecommendations = async (userId: number) => {
       .recommendation;
     const movies = [];
     for (const recommendation of recommendations) {
-      console.log(
-        "3. [calculateRecommendations] Start searching movie >>>",
-        recommendation
+      logger.debug(
+        { recommendation, userId },
+        "calculateRecommendations: Searching for movie in TMDB"
       );
       const movie = await movieService.searchMovieFromTMDB(recommendation);
       if (movie.results.length > 0) {
@@ -92,9 +101,9 @@ export const calculateRecommendations = async (userId: number) => {
           movie.results[0].id
         );
 
-        console.log(
-          "4. [calculateRecommendations] Inserting movie >>>",
-          movieDetail?.title
+        logger.debug(
+          { movieTitle: movieDetail?.title, userId },
+          "calculateRecommendations: Creating movie and genres in database"
         );
         const { createdMovie } = await movieService.createMovieAndGenres(
           movieDetail
@@ -112,21 +121,38 @@ export const calculateRecommendations = async (userId: number) => {
       truncate: true,
     });
 
-    console.log(
-      "5. [calculateRecommendations] Creating recommendations >>>",
-      movies
+    logger.info(
+      { movieCount: movies.length, userId },
+      "calculateRecommendations: Creating user recommendations"
     );
+
     // Insert new recommendations
-    await Recommendation.bulkCreate(
-      movies.map((movie) => ({
-        userId,
-        movieId: movie.id,
-      }))
+    for (const movie of movies) {
+      await Recommendation.findOrCreate({
+        where: {
+          userId,
+          movieId: movie.id,
+        },
+        defaults: {
+          userId,
+          movieId: movie.id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+    }
+
+    logger.info(
+      { userId, recommendationCount: movies.length },
+      "calculateRecommendations: Successfully completed recommendation generation"
     );
 
     return movies;
   } catch (err) {
-    console.log(err, "<<< [calculateRecommendations] error");
+    logger.error(
+      { error: err, userId },
+      "calculateRecommendations: Failed to calculate recommendations"
+    );
     throw err;
   }
 };
