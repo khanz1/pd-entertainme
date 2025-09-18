@@ -1,5 +1,3 @@
-"use client";
-
 import { Link } from "react-router";
 import { Star, Calendar, Eye } from "lucide-react";
 import type { Movie } from "../movie.type";

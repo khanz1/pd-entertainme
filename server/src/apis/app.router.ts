@@ -6,7 +6,7 @@ import FavoriteRouter from "./favorite/favorite.router";
 
 const appRouter = Router();
 
-appRouter.get("/", AppController.getHello);
+appRouter.get("/health", AppController.getHealth);
 appRouter.use("/auth", AuthRouter);
 appRouter.use("/movies", MovieRouter);
 appRouter.use("/favorites", FavoriteRouter);

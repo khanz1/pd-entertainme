@@ -15,7 +15,6 @@ export function AuthLayout() {
     }
   }, [isAuthenticated, accessToken, navigate]);
 
-  // Show loading while checking authentication
   if (!isAuthenticated || !accessToken) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">

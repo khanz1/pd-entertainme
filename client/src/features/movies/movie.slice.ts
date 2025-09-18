@@ -14,7 +14,7 @@ export interface MovieState {
   currentCategory: MovieCategory;
   searchQuery: string;
   currentPage: number;
-  hasMore: boolean;
+  hasMoreMovies: boolean;
 }
 
 // Combined state interface
@@ -35,7 +35,7 @@ const initialMovieState: MovieState = {
   currentCategory: "popular",
   searchQuery: "",
   currentPage: 1,
-  hasMore: true,
+  hasMoreMovies: true,
 };
 
 // Auth slice
@@ -73,7 +73,9 @@ export const authSlice = createSlice({
 
     setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
       state.isAuthenticated = action.payload;
-      state.accessToken = action.payload ? localStorage.getItem("accessToken") : null;
+      state.accessToken = action.payload
+        ? localStorage.getItem("accessToken")
+        : null;
     },
   },
 });
@@ -86,7 +88,7 @@ export const movieSlice = createSlice({
     setCurrentCategory: (state, action: PayloadAction<MovieCategory>) => {
       state.currentCategory = action.payload;
       state.currentPage = 1;
-      state.hasMore = true;
+      state.hasMoreMovies = true;
       if (action.payload !== "search") {
         state.searchQuery = "";
       }
@@ -96,33 +98,34 @@ export const movieSlice = createSlice({
       state.searchQuery = action.payload;
       state.currentCategory = "search";
       state.currentPage = 1;
-      state.hasMore = true;
+      state.hasMoreMovies = true;
     },
 
     incrementPage: (state) => {
       state.currentPage += 1;
     },
 
-    setHasMore: (state, action: PayloadAction<boolean>) => {
-      state.hasMore = action.payload;
+    setHasMoreMovies: (state, action: PayloadAction<boolean>) => {
+      state.hasMoreMovies = action.payload;
     },
 
     resetMovieState: (state) => {
       state.currentCategory = "popular";
       state.searchQuery = "";
       state.currentPage = 1;
-      state.hasMore = true;
+      state.hasMoreMovies = true;
     },
   },
 });
 
-export const { setCredentials, logout, clearAuth, setIsAuthenticated } = authSlice.actions;
+export const { setCredentials, logout, clearAuth, setIsAuthenticated } =
+  authSlice.actions;
 
 export const {
   setCurrentCategory,
   setSearchQuery,
   incrementPage,
-  setHasMore,
+  setHasMoreMovies,
   resetMovieState,
 } = movieSlice.actions;
 

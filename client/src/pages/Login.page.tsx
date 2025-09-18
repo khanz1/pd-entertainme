@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
@@ -26,7 +24,6 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-  Film,
   Eye,
   EyeOff,
   Mail,
@@ -42,17 +39,10 @@ import { setCredentials } from "@/features/movies/movie.slice";
 import { useGoogleLogin } from "@react-oauth/google";
 import { serverApi } from "@/lib/http";
 import { toast } from "sonner";
-
-const loginFormSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(1, {
-    message: "Password is required.",
-  }),
-});
-
-type LoginFormValues = z.infer<typeof loginFormSchema>;
+import {
+  LoginFormSchema,
+  type LoginFormValues,
+} from "@/features/auth/schema/LoginForm.schema";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -62,10 +52,10 @@ export function LoginPage() {
   const [login, { isLoading }] = useLoginMutation();
 
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginFormSchema),
+    resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      email: "assistance.zakhaev@gmail.com",
-      password: "Admin123!",
+      email: "",
+      password: "",
     },
   });
 
@@ -73,7 +63,6 @@ export function LoginPage() {
     flow: "auth-code",
     redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI,
     onSuccess: async (tokenResponse) => {
-      console.log(tokenResponse, "<<< tokenResponse");
       const result = await serverApi.post("/auth/login/google", {
         code: tokenResponse.code,
       });
@@ -97,7 +86,6 @@ export function LoginPage() {
         password: values.password,
       }).unwrap();
 
-      // Store credentials in Redux and localStorage
       dispatch(
         setCredentials({
           user: result.data.user,
@@ -106,7 +94,6 @@ export function LoginPage() {
       );
 
       toast("Login successful! Welcome back!");
-      // Navigate to home page
       navigate("/");
     } catch (err: any) {
       console.error("Login failed:", err);
@@ -119,7 +106,6 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
-        {/* Left Side - Illustration */}
         <div className="hidden lg:flex flex-col items-center justify-center space-y-8 text-center">
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full flex items-center justify-center">
@@ -135,7 +121,7 @@ export function LoginPage() {
           </div>
           <div className="space-y-4">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Welcome Back to MovieHub
+              Welcome Back to Entertain Me
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
               Continue your cinematic journey. Access your personalized
@@ -158,13 +144,16 @@ export function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side - Form */}
         <div className="w-full max-w-md mx-auto lg:mx-0">
           <Card className="border-0 shadow-2xl bg-card/50 backdrop-blur-xl">
             <CardHeader className="space-y-4 pb-8">
               <div className="flex items-center gap-3 justify-center lg:justify-start">
                 <div className="p-2 bg-blue-500/10 rounded-xl">
-                  <Film className="w-6 h-6 text-blue-500" />
+                  <img
+                    src="/entertainme-logo.png"
+                    alt="Entertain Me"
+                    className="w-6 h-6"
+                  />
                 </div>
                 <div>
                   <CardTitle className="text-2xl font-bold">

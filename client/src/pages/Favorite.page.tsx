@@ -1,5 +1,3 @@
-"use client";
-
 import { FavoriteMovieCard } from "@/features/movies/components/favorite/FavoriteMovie.card";
 import { FavoritesEmptyState } from "@/features/movies/components/favorite/FavoriteEmptyState";
 import { Heart } from "lucide-react";

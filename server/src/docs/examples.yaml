@@ -1,0 +1,236 @@
+# Swagger Examples for Entertain Me API
+
+examples:
+  # Authentication Examples
+  UserRegister:
+    summary: User registration example
+    value:
+      name: "John Doe"
+      email: "john.doe@example.com"
+      password: "SecurePass123!"
+      profilePict: "https://example.com/avatar.jpg"
+
+  UserLogin:
+    summary: User login example
+    value:
+      email: "john.doe@example.com"
+      password: "SecurePass123!"
+
+  GoogleAuth:
+    summary: Google OAuth example
+    value:
+      code: "4/0AX4XfWh-xkJGfz8h1QJ2m8W3QVD6Ef7X8k9L5M_N3P7"
+
+  # Movie Examples
+  MoviesList:
+    summary: Movies list response
+    value:
+      status: "success"
+      totalPages: 500
+      totalResults: 10000
+      data:
+        - id: 550
+          tmdbId: 550
+          title: "Fight Club"
+          overview: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy."
+          releaseDate: "1999-10-15"
+          posterPath: "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+          backdropPath: "https://image.tmdb.org/t/p/w500/fCayJrkfRaCRCTh8GqN30f8oyQF.jpg"
+          voteAverage: 8.4
+          voteCount: 26280
+          popularity: 61.416
+          adult: false
+          originalLanguage: "en"
+          createdAt: "2024-01-15T10:30:00Z"
+          updatedAt: "2024-01-15T10:30:00Z"
+        - id: 278
+          tmdbId: 278
+          title: "The Shawshank Redemption"
+          overview: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency."
+          releaseDate: "1994-09-23"
+          posterPath: "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
+          backdropPath: "https://image.tmdb.org/t/p/w500/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg"
+          voteAverage: 9.3
+          voteCount: 21828
+          popularity: 94.155
+          adult: false
+          originalLanguage: "en"
+          createdAt: "2024-01-15T10:30:00Z"
+          updatedAt: "2024-01-15T10:30:00Z"
+
+  MovieDetail:
+    summary: Movie detail response
+    value:
+      status: "success"
+      data:
+        adult: false
+        backdropPath: "https://image.tmdb.org/t/p/original/fCayJrkfRaCRCTh8GqN30f8oyQF.jpg"
+        belongsToCollection: null
+        budget: 63000000
+        genres:
+          - id: 18
+            name: "Drama"
+          - id: 53
+            name: "Thriller"
+        homepage: "https://www.foxmovies.com/movies/fight-club"
+        id: 550
+        imdbId: "tt0137523"
+        originCountry: ["US"]
+        originalLanguage: "en"
+        originalTitle: "Fight Club"
+        overview: "A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy."
+        popularity: 61.416
+        posterPath: "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+        productionCompanies:
+          - id: 508
+            logoPath: "https://image.tmdb.org/t/p/original/7PzJdsLGlR7oW4J0J5Xcd0pHGRg.png"
+            name: "Regency Enterprises"
+            originCountry: "US"
+          - id: 711
+            logoPath: "https://image.tmdb.org/t/p/original/tEiIH5QesdheJmDAqQwvtN60727.png"
+            name: "Fox 2000 Pictures"
+            originCountry: "US"
+        productionCountries:
+          - iso31661: "US"
+            name: "United States of America"
+        releaseDate: "1999-10-15"
+        revenue: 100853753
+        runtime: 139
+        spokenLanguages:
+          - englishName: "English"
+            iso6391: "en"
+            name: "English"
+        status: "Released"
+        tagline: "Mischief. Mayhem. Soap."
+        title: "Fight Club"
+        video: false
+        voteAverage: 8.4
+        voteCount: 26280
+
+  # Favorites Examples
+  FavoritesList:
+    summary: User favorites response
+    value:
+      status: "success"
+      data:
+        - id: 1
+          userId: 1
+          movieId: 1
+          movie:
+            id: 1
+            tmdbId: 550
+            title: "Fight Club"
+            overview: "A ticking-time-bomb insomniac and a slippery soap salesman..."
+            releaseDate: "1999-10-15"
+            posterPath: "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"
+            backdropPath: "https://image.tmdb.org/t/p/w500/fCayJrkfRaCRCTh8GqN30f8oyQF.jpg"
+            voteAverage: 8.4
+            voteCount: 26280
+            popularity: 61.416
+            adult: false
+            originalLanguage: "en"
+            genres:
+              - id: 18
+                name: "Drama"
+              - id: 53
+                name: "Thriller"
+          createdAt: "2024-01-15T10:30:00Z"
+          updatedAt: "2024-01-15T10:30:00Z"
+
+  AddFavorite:
+    summary: Add movie to favorites
+    value:
+      tmdbId: 550
+
+  # Recommendations Examples
+  RecommendationsList:
+    summary: AI recommendations response
+    value:
+      status: "success"
+      data:
+        - id: 1
+          userId: 1
+          movieId: 278
+          movie:
+            id: 278
+            tmdbId: 278
+            title: "The Shawshank Redemption"
+            overview: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency."
+            releaseDate: "1994-09-23"
+            posterPath: "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
+            backdropPath: "https://image.tmdb.org/t/p/w500/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg"
+            voteAverage: 9.3
+            voteCount: 21828
+            popularity: 94.155
+            adult: false
+            originalLanguage: "en"
+          createdAt: "2024-01-15T10:30:00Z"
+          updatedAt: "2024-01-15T10:30:00Z"
+        - id: 2
+          userId: 1
+          movieId: 424
+          movie:
+            id: 424
+            tmdbId: 424
+            title: "Schindler's List"
+            overview: "The true story of how businessman Oskar Schindler saved over a thousand Jewish lives from the Nazis while they worked as slaves in his factory during World War II."
+            releaseDate: "1993-12-15"
+            posterPath: "https://image.tmdb.org/t/p/w500/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg"
+            backdropPath: "https://image.tmdb.org/t/p/w500/zb6fM1CX41D9rF9hdgclu0peUmy.jpg"
+            voteAverage: 9.0
+            voteCount: 14000
+            popularity: 67.891
+            adult: false
+            originalLanguage: "en"
+          createdAt: "2024-01-15T11:00:00Z"
+          updatedAt: "2024-01-15T11:00:00Z"
+
+  # Error Examples
+  ValidationError:
+    summary: Validation error response
+    value:
+      statusCode: 400
+      status: "error"
+      message: "Email is required"
+      details:
+        - path: "email"
+          message: "Email is required"
+          code: "invalid_type"
+
+  AuthenticationError:
+    summary: Authentication error response
+    value:
+      statusCode: 401
+      status: "error"
+      message: "Invalid token"
+
+  AuthorizationError:
+    summary: Authorization error response
+    value:
+      statusCode: 403
+      status: "error"
+      message: "You are not authorized to access this resource"
+
+  NotFoundError:
+    summary: Resource not found response
+    value:
+      statusCode: 404
+      status: "error"
+      message: "Movie not found"
+
+  ServerError:
+    summary: Internal server error response
+    value:
+      statusCode: 500
+      status: "error"
+      message: "We're experiencing some technical difficulties. Please try again later."
+
+  # Health Check Example
+  HealthCheck:
+    summary: Health check response
+    value:
+      status: "healthy"
+      timestamp: "2024-01-15T10:30:00.000Z"
+      uptime: 3600.5
+      environment: "production"
+      version: "1.0.0"

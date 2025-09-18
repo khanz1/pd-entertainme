@@ -1,11 +1,8 @@
-"use client";
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { useDispatch } from "react-redux";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,38 +36,10 @@ import {
 import { useRegisterMutation } from "@/features/movies/movie.api";
 import { setCredentials } from "@/features/movies/movie.slice";
 import { toast } from "sonner";
-
-const registerFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
-    .max(50, {
-      message: "Name must not exceed 50 characters.",
-    }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z
-    .string()
-    .min(8, {
-      message: "Password must be at least 8 characters.",
-    })
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
-      message:
-        "Password must contain uppercase, lowercase, number and special character.",
-    }),
-  profilePicture: z
-    .string()
-    .url({
-      message: "Please enter a valid URL.",
-    })
-    .optional()
-    .or(z.literal("")),
-});
-
-type RegisterFormValues = z.infer<typeof registerFormSchema>;
+import {
+  RegisterFormSchema,
+  type RegisterFormValues,
+} from "@/features/auth/schema/RegisterForm.schema";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -80,11 +49,11 @@ export function RegisterPage() {
   const [register, { isLoading }] = useRegisterMutation();
 
   const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerFormSchema),
+    resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
-      name: "Xavier Evans",
-      email: "assistance.xavier@gmail.com",
-      password: "Admin123!",
+      name: "",
+      email: "",
+      password: "",
       profilePicture: "",
     },
   });
@@ -98,7 +67,6 @@ export function RegisterPage() {
         profilePict: values.profilePicture || "",
       }).unwrap();
 
-      // Store credentials in Redux and localStorage
       dispatch(
         setCredentials({
           user: result.data.user,
@@ -107,7 +75,6 @@ export function RegisterPage() {
       );
 
       toast("Registration successful! Welcome!");
-      // Navigate to home page
       navigate("/");
     } catch (err: any) {
       console.error("Registration failed:", err);
@@ -118,7 +85,6 @@ export function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
-        {/* Left Side - Illustration */}
         <div className="hidden lg:flex flex-col items-center justify-center space-y-8 text-center">
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full flex items-center justify-center">
@@ -134,7 +100,7 @@ export function RegisterPage() {
           </div>
           <div className="space-y-4">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Join MovieHub Today
+              Join Entertain Me Today
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
               Discover amazing movies, get personalized recommendations, and
@@ -157,13 +123,16 @@ export function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Side - Form */}
         <div className="w-full max-w-md mx-auto lg:mx-0">
           <Card className="border-0 shadow-2xl bg-card/50 backdrop-blur-xl">
             <CardHeader className="space-y-4 pb-8">
               <div className="flex items-center gap-3 justify-center lg:justify-start">
                 <div className="p-2 bg-primary/10 rounded-xl">
-                  <Film className="w-6 h-6 text-primary" />
+                  <img
+                    src="/entertainme-logo.png"
+                    alt="Entertain Me"
+                    className="w-6 h-6"
+                  />
                 </div>
                 <div>
                   <CardTitle className="text-2xl font-bold">

@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Film, Heart, LogOut, User } from "lucide-react";
+import { Heart, LogOut, User } from "lucide-react";
 import { useAppSelector } from "@/hooks/useRedux";
 import { logout, setCredentials } from "@/features/movies/movie.slice";
 import { useGetUserMeQuery } from "@/features/movies/movie.api";
@@ -22,12 +22,10 @@ export function Header() {
 
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
-  // Fetch user data when authenticated
   const { data: userResponse, isFetching } = useGetUserMeQuery(undefined, {
     skip: !isAuthenticated,
   });
 
-  // Update user data when fetched
   useEffect(() => {
     if (userResponse?.data?.user && isAuthenticated) {
       dispatch(
@@ -48,18 +46,20 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container m-auto flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <Film className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">MovieHub</span>
+          <img
+            src="/entertainme-logo.png"
+            alt="Entertain Me"
+            className="h-8 w-8"
+          />
+          <span className="text-xl font-bold">Entertain Me</span>
         </Link>
 
         <nav className="flex items-center gap-3">
-          {/* Theme Toggle */}
           <ThemeToggle />
 
           {!isFetching &&
             (isAuthenticated && user ? (
               <>
-                {/* User Avatar Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -82,7 +82,6 @@ export function Header() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-64" align="end" forceMount>
-                    {/* User Info */}
                     <div className="flex items-center gap-3 p-3">
                       <Avatar className="h-10 w-10">
                         <AvatarImage
@@ -106,7 +105,6 @@ export function Header() {
                     </div>
                     <DropdownMenuSeparator />
 
-                    {/* Profile Link */}
                     <DropdownMenuItem asChild>
                       <Link to="/profile" className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" />
@@ -114,7 +112,6 @@ export function Header() {
                       </Link>
                     </DropdownMenuItem>
 
-                    {/* Favorites Link */}
                     <DropdownMenuItem asChild>
                       <Link to="/favorites" className="cursor-pointer">
                         <Heart className="mr-2 h-4 w-4" />
@@ -124,7 +121,6 @@ export function Header() {
 
                     <DropdownMenuSeparator />
 
-                    {/* Logout */}
                     <DropdownMenuItem
                       onClick={handleLogout}
                       className="cursor-pointer text-destructive focus:text-destructive"
@@ -136,7 +132,6 @@ export function Header() {
                 </DropdownMenu>
               </>
             ) : (
-              /* Authentication Buttons */
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/login">Sign In</Link>
