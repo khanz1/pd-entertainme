@@ -247,22 +247,6 @@ export const createFavorite = withErrorHandler<AuthenticatedRequest>(
  *               statusCode: 401
  *               status: "error"
  *               message: "Invalid token"
- *       200:
- *         description: No favorites found (empty array)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 data:
- *                   type: array
- *                   items: {}
- *             example:
- *               status: "success"
- *               data: []
  */
 export const getFavorites = withErrorHandler<AuthenticatedRequest>(
   async (req, res) => {
