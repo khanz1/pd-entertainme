@@ -23,7 +23,7 @@ jobs:
       # 3) Install dependencies & run tests (server only)
       - name: Install dependencies
         working-directory: ./server
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       - name: Run tests
         working-directory: ./server
         run: npm run test
