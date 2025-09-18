@@ -1,4 +1,4 @@
-import { User } from "@models";
+import { User } from "../models";
 import { Request } from "express";
 
 export type AuthenticatedRequest = Request & {

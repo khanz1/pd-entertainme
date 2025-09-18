@@ -1,6 +1,6 @@
-import { tmdbAPI } from "@utils/http";
+import { tmdbAPI } from "../../utils/http";
 import { TMDBBasicMovie, type ITMDBMovieDetail } from "../movie/tmdb.type";
-import { Genre, Movie, MovieGenre } from "@models";
+import { Genre, Movie, MovieGenre } from "../../models";
 
 export const getMovieFromTMDBById = async (tmdbId: number) => {
   const movieResponse = await tmdbAPI.get<ITMDBMovieDetail>(`/movie/${tmdbId}`);

@@ -5,7 +5,7 @@ import { ApiResponseStatus } from "../app.type";
 import sequelize from "../../config/database";
 import { User } from "../../models";
 import { AuthError } from "./auth.controller";
-import { signToken, verifyToken } from "@utils/crypto";
+import { signToken, verifyToken } from "../../utils/crypto";
 
 let accessToken: string;
 const userSeed = {

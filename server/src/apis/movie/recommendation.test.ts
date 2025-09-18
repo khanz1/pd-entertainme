@@ -1,9 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
-import request from "supertest";
-import app from "../../app";
-import { ApiResponseStatus } from "../app.type";
-import { Favorite, Recommendation, User } from "@models";
-import { signToken } from "@utils/crypto";
+import { describe, it, expect, beforeAll } from "@jest/globals";
+import { Favorite, User } from "../../models";
+import { signToken } from "../../utils/crypto";
 import { calculateRecommendations } from "./recommendation.service";
 import * as MovieService from "./movie.service";
 

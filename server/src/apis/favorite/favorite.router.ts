@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as FavoriteController from "./favorite.controller";
-import { authenticatation } from "@middleware/authentication";
-import { guardAuthor } from "@middleware/guardAuthor";
+import { authenticatation } from "../../middleware/authentication";
+import { guardAuthor } from "../../middleware/guardAuthor";
 
 const favoriteRouter = Router();
 

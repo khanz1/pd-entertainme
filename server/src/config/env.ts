@@ -60,5 +60,3 @@ export type IEnv = z.infer<typeof EnvSchema> & {
 };
 
 export const Env = EnvSchema.parse(process.env) as IEnv;
-
-console.log(Env, "<<< ENVVVV");

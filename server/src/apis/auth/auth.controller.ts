@@ -1,4 +1,4 @@
-import { User } from "@models";
+import { User } from "../../models";
 import { RegisterSchema } from "./schema/register.schema";
 import { Request, Response } from "express";
 import { withErrorHandler, NotFoundError } from "../../utils/error";
@@ -8,7 +8,7 @@ import { UnauthorizedError } from "../../utils/error";
 import { signToken } from "../../utils/crypto";
 import { OAuth2Client } from "google-auth-library";
 import { Env } from "../../config/env";
-import { AuthenticatedRequest } from "types/express.type";
+import { AuthenticatedRequest } from "../../types/express.type";
 
 const client = new OAuth2Client(
   Env.GOOGLE_CLIENT_ID,

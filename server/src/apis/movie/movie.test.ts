@@ -3,8 +3,8 @@ import request from "supertest";
 import app from "../../app";
 import { ApiResponseStatus } from "../app.type";
 import { MovieError } from "./movie.type";
-import { signToken } from "@utils/crypto";
-import { sequelize, User } from "@models";
+import { signToken } from "../../utils/crypto";
+import { sequelize, User } from "../../models";
 
 let accessToken: string;
 

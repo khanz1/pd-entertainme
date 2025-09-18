@@ -1,6 +1,6 @@
 import { DataTypes, Model, type Optional } from "sequelize";
 import sequelize from "../config/database";
-import { comparePassword, hashPassword } from "@utils/crypto";
+import { comparePassword, hashPassword } from "../utils/crypto";
 
 interface UserAttributes {
   id: number;

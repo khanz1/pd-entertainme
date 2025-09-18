@@ -1,7 +1,7 @@
-import { Favorite, Movie, Recommendation } from "@models";
+import { Favorite, Movie, Recommendation } from "../../models";
 import { openaiClient } from "../../lib/openai";
 import { z } from "zod";
-import { logger } from "@utils/logger";
+import { logger } from "../../utils/logger";
 import * as movieService from "./movie.service";
 
 export const calculateRecommendations = async (userId: number) => {
