@@ -86,7 +86,7 @@ export function HomePage() {
 
       <RecommendedMovies />
 
-      <div className="bg-card/50 backdrop-blur-sm rounded-xl border p-6 mb-8">
+      <div className="py-6 mb-8">
         <div className="flex items-center gap-3 mb-6">
           <TrendingUp className="h-6 w-6 text-primary" />
           <h2 className="text-2xl font-bold">Discover Movies</h2>
@@ -100,32 +100,30 @@ export function HomePage() {
         />
       </div>
 
-      <div className="bg-card/30 backdrop-blur-sm rounded-xl border p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h3 className="text-xl font-semibold">
-            {searchQuery
-              ? `Search Results for "${searchQuery}"`
-              : currentCategory === "now_playing"
-              ? "Now Playing"
-              : currentCategory === "top_rated"
-              ? "Top Rated Movies"
-              : "Popular Movies"}
-          </h3>
-          {moviesListResponse && (
-            <span className="text-sm text-muted-foreground ml-auto">
-              {moviesListResponse.totalResults.toLocaleString()} movies found
-            </span>
-          )}
-        </div>
-
-        <MovieGrid
-          movies={moviesList}
-          loading={isLoadingMovies}
-          hasMore={hasMoreMovies}
-          onLoadMore={handleLoadMoreMovies}
-        />
+      <div className="flex items-center gap-2 mb-6">
+        <Sparkles className="h-5 w-5 text-primary" />
+        <h3 className="text-xl font-semibold">
+          {searchQuery
+            ? `Search Results for "${searchQuery}"`
+            : currentCategory === "now_playing"
+            ? "Now Playing"
+            : currentCategory === "top_rated"
+            ? "Top Rated Movies"
+            : "Popular Movies"}
+        </h3>
+        {moviesListResponse && (
+          <span className="text-sm text-muted-foreground ml-auto">
+            {moviesListResponse.totalResults.toLocaleString()} movies found
+          </span>
+        )}
       </div>
+
+      <MovieGrid
+        movies={moviesList}
+        loading={isLoadingMovies}
+        hasMore={hasMoreMovies}
+        onLoadMore={handleLoadMoreMovies}
+      />
     </main>
   );
 }

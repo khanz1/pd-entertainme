@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Search, X, ChevronDown } from "lucide-react";
 import type { MovieCategory } from "@/features/movies/movie.type";
 
 interface MovieFiltersProps {
@@ -56,60 +62,81 @@ export function MovieFilters({
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
-      <form onSubmit={handleSearchSubmit} className="relative max-w-md">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search movies..."
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
-            className="pl-10 pr-10"
-          />
-          {(localSearch || searchQuery) && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={clearSearch}
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </form>
-
-      {/* Category Filters */}
-      <div className="flex flex-wrap gap-2">
-        {categories.map((category) => (
-          <Button
-            key={category.key}
-            variant={activeCategory === category.key ? "default" : "outline"}
-            onClick={() => onCategoryChange(category.key)}
-            className="text-sm"
-            disabled={activeCategory === "search" && searchQuery.length > 0}
-          >
-            {category.label}
-          </Button>
-        ))}
-
-        {activeCategory === "search" && searchQuery && (
-          <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md text-sm">
-            <span className="text-muted-foreground">Searching for:</span>
-            <span className="font-medium">"{searchQuery}"</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearSearch}
-              className="h-5 w-5 p-0 hover:bg-transparent"
-            >
-              <X className="h-3 w-3" />
-            </Button>
+      {/* Search Bar and Category Filter */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start">
+        {/* Search Bar */}
+        <form
+          onSubmit={handleSearchSubmit}
+          className="relative flex-1 max-w-md"
+        >
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search movies..."
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              className="pl-10 pr-10"
+            />
+            {(localSearch || searchQuery) && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={clearSearch}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
-        )}
+        </form>
+
+        {/* Category Select */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-[180px] justify-between"
+              disabled={activeCategory === "search" && searchQuery.length > 0}
+            >
+              {categories.find(
+                (cat) =>
+                  cat.key ===
+                  (activeCategory === "search" ? "popular" : activeCategory)
+              )?.label || "Select category"}
+              <ChevronDown className="h-4 w-4 opacity-50" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[180px]">
+            {categories.map((category) => (
+              <DropdownMenuItem
+                key={category.key}
+                onClick={() => onCategoryChange(category.key)}
+                className={activeCategory === category.key ? "bg-accent" : ""}
+              >
+                {category.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
+      {/* Active Search Indicator */}
+      {activeCategory === "search" && searchQuery && (
+        <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md text-sm w-fit">
+          <span className="text-muted-foreground">Searching for:</span>
+          <span className="font-medium">"{searchQuery}"</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearSearch}
+            className="h-5 w-5 p-0 hover:bg-transparent ml-1"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
