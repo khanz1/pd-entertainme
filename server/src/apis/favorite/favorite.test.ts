@@ -65,25 +65,48 @@ describe("Favorite API", () => {
         .send({
           tmdbId: movieId,
         });
-      console.log(response.body, "<<< response.body");
-      // expect(response.status).toBe(200);
-      // expect(response.body.status).toBe(ApiResponseStatus.SUCCESS);
+      expect(response.status).toBe(200);
+      expect(response.body.status).toBe(ApiResponseStatus.SUCCESS);
       expect(response.body.data).toBeDefined();
+      expect(response.body.data.movieId).toBeDefined();
+      expect(response.body.data.userId).toBeDefined();
     });
 
-    it("should return a 400 Bad Request when tmdbId is not provided", async () => {
+    it("should return 400 when tmdbId is not provided", async () => {
       const response = await request(app)
         .post("/api/favorites")
         .set("Authorization", `Bearer ${accessToken}`)
         .send({});
       expect(response.status).toBe(400);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
     });
 
-    it("should return a 400 Bad Request when tmdbId is not a number", async () => {
+    it("should return 400 when tmdbId is not a number", async () => {
       const response = await request(app)
         .post("/api/favorites")
         .set("Authorization", `Bearer ${accessToken}`)
         .send({ tmdbId: "not a number" });
+      expect(response.status).toBe(400);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
+    });
+
+    it("should return 400 when movie is already favorited", async () => {
+      const movieId = 385687; // Movie that's already favorited in beforeAll
+      const response = await request(app)
+        .post("/api/favorites")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send({ tmdbId: movieId });
+      expect(response.status).toBe(400);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
+      expect(response.body.message).toBe("Already added to your favorite");
+    });
+
+    it("should return 401 for unauthenticated user", async () => {
+      const response = await request(app)
+        .post("/api/favorites")
+        .send({ tmdbId: 550 });
+      expect(response.status).toBe(401);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
     });
   });
 
@@ -95,7 +118,20 @@ describe("Favorite API", () => {
       expect(response.status).toBe(200);
       expect(response.body.status).toBe(ApiResponseStatus.SUCCESS);
       expect(response.body.data).toBeDefined();
+      expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBeGreaterThan(0);
+      // Check favorite structure
+      const favorite = response.body.data[0];
+      expect(favorite.id).toBeDefined();
+      expect(favorite.userId).toBeDefined();
+      expect(favorite.movieId).toBeDefined();
+      expect(favorite.movie).toBeDefined();
+    });
+
+    it("should return 401 for unauthenticated user", async () => {
+      const response = await request(app).get("/api/favorites");
+      expect(response.status).toBe(401);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
     });
   });
 
@@ -105,21 +141,36 @@ describe("Favorite API", () => {
         .delete(`/api/favorites/${favoriteIdToDelete}`)
         .set("Authorization", `Bearer ${accessToken}`);
       expect(response.status).toBe(200);
+      expect(response.body.status).toBe(ApiResponseStatus.SUCCESS);
+      expect(response.body.data).toBe(null);
     });
 
-    it("should return a 404 when favorite not found", async () => {
+    it("should return 404 when favorite not found", async () => {
       const notFoundFavoriteId = 1_000_000;
       const response = await request(app)
         .delete(`/api/favorites/${notFoundFavoriteId}`)
         .set("Authorization", `Bearer ${accessToken}`);
       expect(response.status).toBe(404);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
     });
 
-    it("should return a 403 when favorite is not owned by the user", async () => {
+    it("should return 403 when favorite is not owned by the user", async () => {
       const response = await request(app)
         .delete(`/api/favorites/${otherFavoriteIdToDelete}`)
         .set("Authorization", `Bearer ${accessToken}`);
       expect(response.status).toBe(403);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
+      expect(response.body.message).toBe(
+        "You are not authorized to access this resource"
+      );
+    });
+
+    it("should return 401 for unauthenticated user", async () => {
+      const response = await request(app).delete(
+        `/api/favorites/${favoriteIdToDelete}`
+      );
+      expect(response.status).toBe(401);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
     });
   });
 });
