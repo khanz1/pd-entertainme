@@ -118,7 +118,6 @@ export const globalErrorHandler = (
       message: "Invalid token",
     });
   } else {
-    console.log(err, "<<< errHandler");
     res.status(500).json({
       statusCode: 500,
       status: ApiResponseStatus.ERROR,

@@ -31,7 +31,6 @@ export const authenticatation = withErrorHandler<AuthenticatedRequest>(
       AuthenticatedUser.set(decoded.id, user);
     }
     req.user = user;
-    console.log(req.user, "<<< req.user");
     next();
   }
 );

@@ -43,7 +43,7 @@ export const createMovieAndGenres = async (movieData: ITMDBMovieDetail) => {
       overview: movieData.overview,
       releaseDate: new Date(movieData.release_date),
       posterPath: `https://image.tmdb.org/t/p/w500${movieData.poster_path}`,
-      backdropPath: `https://image.tmdb.org/t/p/w500${movieData.backdrop_path}`,
+      backdropPath: `https://image.tmdb.org/t/p/original${movieData.backdrop_path}`,
       voteAverage: movieData.vote_average,
       voteCount: movieData.vote_count,
       popularity: movieData.popularity,
@@ -74,15 +74,6 @@ export const createMovieAndGenres = async (movieData: ITMDBMovieDetail) => {
       },
     });
   }
-
-  // const mappedMovieGenres = movieGenres.map((genre) => ({
-  //   movieId: createdMovie.id,
-  //   genreId: genre.id,
-  //   createdAt: new Date(),
-  //   updatedAt: new Date(),
-  // }));
-
-  // await MovieGenre.bulkCreate(mappedMovieGenres);
 
   return { createdMovie, createdGenres: genres };
 };

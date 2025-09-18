@@ -269,8 +269,6 @@ export const getFavorites = withErrorHandler<AuthenticatedRequest>(
       ],
     });
 
-    // await calculateRecommendations(req.user!.id);
-
     res.json({
       status: ApiResponseStatus.SUCCESS,
       data: favorites,
