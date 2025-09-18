@@ -53,6 +53,18 @@ const EnvSchema = z.object({
   TMDB_BASE_URL: z.string({ error: "TMDB_BASE_URL is required" }).default(""),
 
   REDIS_URL: z.string({ error: "REDIS_URL is required" }).default(""),
+  DOCS_CONTACT_NAME: z
+    .string({ error: "DOCS_CONTACT_NAME is required" })
+    .default(""),
+  DOCS_CONTACT_EMAIL: z
+    .string({ error: "DOCS_CONTACT_EMAIL is required" })
+    .default(""),
+  DOCS_CONTACT_WEB: z
+    .string({ error: "DOCS_CONTACT_URL is required" })
+    .default(""),
+  DOCS_SERVER_URL: z
+    .string({ error: "DOCS_SERVER_URL is required" })
+    .default(""),
 });
 
 export type IEnv = z.infer<typeof EnvSchema> & {

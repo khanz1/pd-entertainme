@@ -40,10 +40,9 @@ app.use(
     }
     .swagger-ui .scheme-container { 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px; 
       border-radius: 10px; 
       color: white;
-      margin: 20px 0;
+      margin: 20px;
     }
     .swagger-ui .auth-wrapper .authorize { 
       background: #4f46e5; 

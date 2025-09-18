@@ -152,17 +152,3 @@ export interface AddFavoriteResponse {
   status: string;
   data: Favorite;
 }
-
-export interface UserMeResponse {
-  status: string;
-  data: {
-    user: {
-      id: number;
-      name: string;
-      email: string;
-      profilePict: string;
-      createdAt: string;
-      updatedAt: string;
-    };
-  };
-}

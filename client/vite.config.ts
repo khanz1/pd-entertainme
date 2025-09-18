@@ -27,7 +27,7 @@ export default defineConfig({
             "@radix-ui/react-slot",
           ],
           forms: ["react-hook-form", "@hookform/resolvers", "zod"],
-          utils: ["axios", "clsx", "tailwind-merge", "sonner", "use-debounce"],
+          utils: ["clsx", "tailwind-merge", "sonner", "use-debounce"],
         },
       },
     },

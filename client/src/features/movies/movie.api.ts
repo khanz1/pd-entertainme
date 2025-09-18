@@ -7,61 +7,11 @@ import type {
   FavoritesResponse,
   AddFavoriteRequest,
   AddFavoriteResponse,
-  UserMeResponse,
 } from "./movie.type";
-
-// Auth types
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  profilePict: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AuthResponse {
-  status: string;
-  data: {
-    user: User;
-    accessToken: string;
-  };
-}
-
-export interface RegisterRequest {
-  name: string;
-  email: string;
-  password: string;
-  profilePict: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
 
 // Movie API endpoints
 export const movieApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Auth endpoints
-    register: builder.mutation<AuthResponse, RegisterRequest>({
-      query: (credentials) => ({
-        url: "/auth/register",
-        method: "POST",
-        body: credentials,
-      }),
-      invalidatesTags: ["Auth"],
-    }),
-
-    login: builder.mutation<AuthResponse, LoginRequest>({
-      query: (credentials) => ({
-        url: "/auth/login",
-        method: "POST",
-        body: credentials,
-      }),
-      invalidatesTags: ["Auth"],
-    }),
-
     // Movie endpoints
     getMovies: builder.query<MovieResponse, MovieFilters>({
       query: ({ page, type, search }) => {
@@ -105,12 +55,6 @@ export const movieApi = baseApi.injectEndpoints({
       providesTags: (_, __, movieId) => [{ type: "Movie", id: movieId }],
     }),
 
-    // Auth endpoints
-    getUserMe: builder.query<UserMeResponse, void>({
-      query: () => "/auth/me",
-      providesTags: ["User"],
-    }),
-
     // Favorites endpoints
     getFavorites: builder.query<FavoritesResponse, void>({
       query: () => "/favorites",
@@ -137,12 +81,9 @@ export const movieApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useRegisterMutation,
-  useLoginMutation,
   useGetMoviesQuery,
   useGetRecommendationsQuery,
   useGetMovieDetailQuery,
-  useGetUserMeQuery,
   useGetFavoritesQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
