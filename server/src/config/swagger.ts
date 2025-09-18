@@ -684,8 +684,8 @@ const options: swaggerJsdoc.Options = {
     ],
   },
   apis: [
-    "./src/apis/**/*.ts", // Path to the API docs
-    "./src/docs/**/*.yaml", // Path to additional documentation
+    "./src/apis/**/*.ts",
+    ...(process.env.NODE_ENV === "production" ? ["./dist/apis/**/*.js"] : [])
   ],
 };
 

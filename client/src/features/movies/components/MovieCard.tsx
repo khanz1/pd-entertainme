@@ -27,7 +27,7 @@ export function MovieCard({ movie, className = "" }: MovieCardProps) {
 
   return (
     <Link to={`/movies/${movie.id}`} className={`group ${className}`}>
-      <div className="bg-card rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 transform">
+      <div className="bg-card h-full rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 transform">
         {/* Movie Poster */}
         <div className="relative aspect-[2/3] overflow-hidden">
           <img
@@ -61,8 +61,8 @@ export function MovieCard({ movie, className = "" }: MovieCardProps) {
         </div>
 
         {/* Movie Info */}
-        <div className="p-4">
-          <h3 className="font-semibold text-sm line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+        <div className="p-4 h-full">
+          <h3 className="font-semibold text-sm mb-2 group-hover:text-primary transition-colors line-clamp-1">
             {movie.title}
           </h3>
 

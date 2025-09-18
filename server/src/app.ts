@@ -26,7 +26,7 @@ app.get("/", (_req, res) => {
   res.redirect("/api/docs");
 });
 
-// Swagger UI Documentation
+// Swagger UI Documentation - Always available
 app.use(
   "/api/docs",
   swaggerUi.serve,
@@ -68,7 +68,6 @@ app.use(
     .swagger-ui .opblock.opblock-put { border-color: #ea580c; }
   `,
     customSiteTitle: "Entertain Me API Documentation",
-    customfavIcon: "/entertainme-logo.png",
     swaggerOptions: {
       persistAuthorization: true,
       displayRequestDuration: true,
@@ -83,10 +82,10 @@ app.use(
       deepLinking: true,
       supportedSubmitMethods: ["get", "post", "put", "delete", "patch"],
       validatorUrl: null,
+      url: "/api/docs.json",
+      // Ensure Swagger works in production
+      layout: "StandaloneLayout",
     },
-    customJs: [
-      "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js",
-    ],
   })
 );
 
@@ -95,6 +94,22 @@ app.get("/api/docs.json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(swaggerSpecs);
 });
+
+// Debug endpoint to check swagger specs in development
+if (Env.NODE_ENV === "development") {
+  app.get("/api/debug/swagger", (req, res) => {
+    const specs = swaggerSpecs as any;
+    res.json({
+      message: "Swagger Specs Debug Info",
+      specsExists: !!swaggerSpecs,
+      pathsCount: specs?.paths ? Object.keys(specs.paths).length : 0,
+      paths: specs?.paths ? Object.keys(specs.paths) : [],
+      tags: specs?.tags || [],
+      environment: Env.NODE_ENV,
+      swaggerVersion: specs?.openapi || specs?.swagger,
+    });
+  });
+}
 
 // Root API endpoint with documentation link
 app.get("/api", (req, res) => {

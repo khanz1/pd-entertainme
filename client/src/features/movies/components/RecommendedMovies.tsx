@@ -3,10 +3,17 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { MovieCard } from "./MovieCard";
-import { ChevronLeft, ChevronRight, Sparkles, Lock } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Lock,
+  Heart,
+  Clock,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RootState } from "@/store";
-import { useGetRecommendationsQuery } from "../movie.api";
+import { useGetRecommendationsQuery, useGetFavoritesQuery } from "../movie.api";
 
 export function RecommendedMovies() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -16,15 +23,46 @@ export function RecommendedMovies() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
+  // Get favorites data
+  const { data: favoritesResponse, isLoading: isLoadingFavorites } =
+    useGetFavoritesQuery(undefined, {
+      skip: !isAuthenticated,
+    });
+
+  // Get recommendations data
   const {
     data: recommendationsResponse,
-    isLoading,
+    isLoading: isLoadingRecommendations,
     error,
   } = useGetRecommendationsQuery(undefined, {
     skip: !isAuthenticated,
   });
 
-  const recommendations = recommendationsResponse?.data || [];
+  // Determine if we should poll based on current state
+  const shouldStartPolling =
+    isAuthenticated &&
+    (favoritesResponse?.data?.length || 0) > 0 &&
+    (!recommendationsResponse?.data ||
+      recommendationsResponse.data.length === 0);
+
+  // Use a separate query for polling
+  const { data: pollingRecommendationsResponse } = useGetRecommendationsQuery(
+    undefined,
+    {
+      skip: !shouldStartPolling,
+      pollingInterval: shouldStartPolling ? 5000 : 0, // Poll every 5 seconds when needed
+    }
+  );
+
+  // Use the most recent data - prioritize polling response when actively polling
+  const finalRecommendationsResponse = shouldStartPolling
+    ? pollingRecommendationsResponse || recommendationsResponse
+    : recommendationsResponse;
+
+  const favorites = favoritesResponse?.data || [];
+  const recommendations = finalRecommendationsResponse?.data || [];
+  const isLoading =
+    isLoadingFavorites || (isLoadingRecommendations && !shouldStartPolling);
 
   // Update scroll button states
   const updateScrollButtons = useCallback(() => {
@@ -86,6 +124,58 @@ export function RecommendedMovies() {
           <Link to="/login">
             <Button>Sign In to Continue</Button>
           </Link>
+        </div>
+      </section>
+    );
+  }
+
+  // State 1: No favorites - encourage user to add favorites
+  if (!isLoading && favorites.length === 0) {
+    return (
+      <section className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-bold">AI Recommended for You</h2>
+        </div>
+        <div className="bg-card border rounded-lg p-8 text-center">
+          <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">
+            Add Your Favorite Movies to Get Recommendations
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            Start by adding some movies to your favorites. Our AI will analyze
+            your taste and suggest movies you'll love.
+          </p>
+          <Link to="/favorites">
+            <Button>Explore Movies</Button>
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  // State 2: Has favorites but no recommendations yet - show processing state
+  if (!isLoading && favorites.length > 0 && recommendations.length === 0) {
+    return (
+      <section className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-bold">AI Recommended for You</h2>
+        </div>
+        <div className="bg-card border rounded-lg p-8 text-center">
+          <Clock className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
+          <h3 className="text-lg font-semibold mb-2">
+            Generating Your Recommendations
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            Our AI is analyzing your favorite movies to create personalized
+            recommendations. This usually takes a few moments...
+          </p>
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-100" />
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-200" />
+          </div>
         </div>
       </section>
     );
@@ -162,10 +252,12 @@ export function RecommendedMovies() {
             ))}
       </div>
 
-      {!isLoading && recommendations.length === 0 && (
+      {/* State 3: Show recommendations if they exist */}
+      {!isLoading && recommendations.length === 0 && favorites.length > 0 && (
         <div className="text-center py-8">
-          <p className="text-muted-foreground">
-            No recommendations available yet. Start rating some movies!
+          <Clock className="h-8 w-8 text-primary mx-auto mb-2 animate-pulse" />
+          <p className="text-muted-foreground text-sm">
+            Generating recommendations based on your favorites...
           </p>
         </div>
       )}
