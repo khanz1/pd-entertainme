@@ -21,6 +21,11 @@ app.use(
 );
 app.use(morgan("common"));
 
+// Root redirect to documentation
+app.get("/", (_req, res) => {
+  res.redirect("/api/docs");
+});
+
 // Swagger UI Documentation
 app.use(
   "/api/docs",

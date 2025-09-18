@@ -243,6 +243,17 @@ describe("Auth API", () => {
     });
   });
 
+  describe("POST /api/auth/login/google", () => {
+    it("400 Bad Request when code is missing", async () => {
+      const response = await request(app)
+        .post("/api/auth/login/google")
+        .send({});
+      expect(response.status).toBe(400);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
+      expect(response.body.message).toContain("Code is required");
+    });
+  });
+
   describe("GET /api/auth/me", () => {
     it("200 OK when user is authenticated", async () => {
       const response = await request(app)
@@ -253,6 +264,21 @@ describe("Auth API", () => {
       expect(response.body.data.user.email).toBe(userSeed.email);
       expect(response.body.data.user.name).toBe(userSeed.name);
       expect(response.body.data.user.profilePict).toBe(userSeed.profilePict);
+    });
+
+    it("401 Unauthorized when token is missing", async () => {
+      const response = await request(app).get("/api/auth/me");
+      expect(response.status).toBe(401);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
+      expect(response.body.message).toBe("Invalid token");
+    });
+
+    it("401 Unauthorized when token is invalid", async () => {
+      const response = await request(app)
+        .get("/api/auth/me")
+        .set("Authorization", "Bearer invalid_token");
+      expect(response.status).toBe(401);
+      expect(response.body.status).toBe(ApiResponseStatus.ERROR);
     });
   });
 });
