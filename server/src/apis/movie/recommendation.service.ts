@@ -20,7 +20,10 @@ export const calculateRecommendations = async (userId: number) => {
     });
 
     const movieTitles = favoritedMovies.map((favorite) => favorite.movie.title);
-    console.log(movieTitles, "<<< [calculateRecommendations] Movie references");
+    console.log(
+      "1. [calculateRecommendations] Movie references >>>",
+      movieTitles
+    );
 
     const MovieRecommendation = z.object({
       recommendation: z.array(z.string()),
@@ -62,7 +65,10 @@ export const calculateRecommendations = async (userId: number) => {
       },
     });
     const data = response.output_parsed;
-    console.log(data, "<<< [calculateRecommendations] Movie Recommendations");
+    console.log(
+      "2. [calculateRecommendations] Movie Recommendations >>>",
+      data
+    );
     if (!data) {
       logger.info({
         message: "No recommendations found",
@@ -77,8 +83,8 @@ export const calculateRecommendations = async (userId: number) => {
     const movies = [];
     for (const recommendation of recommendations) {
       console.log(
-        recommendation,
-        "<<< [calculateRecommendations] Start searching movie"
+        "3. [calculateRecommendations] Start searching movie >>>",
+        recommendation
       );
       const movie = await movieService.searchMovieFromTMDB(recommendation);
       if (movie.results.length > 0) {
@@ -87,8 +93,8 @@ export const calculateRecommendations = async (userId: number) => {
         );
 
         console.log(
-          movieDetail?.title,
-          "<<< [calculateRecommendations] Inserting movie"
+          "4. [calculateRecommendations] Inserting movie >>>",
+          movieDetail?.title
         );
         const { createdMovie } = await movieService.createMovieAndGenres(
           movieDetail
@@ -98,7 +104,6 @@ export const calculateRecommendations = async (userId: number) => {
       }
     }
 
-    // Remove existing recommendations
     await Recommendation.destroy({
       where: {
         userId,
@@ -107,7 +112,10 @@ export const calculateRecommendations = async (userId: number) => {
       truncate: true,
     });
 
-    console.log(movies, "<<< [calculateRecommendations] Inserting movies");
+    console.log(
+      "5. [calculateRecommendations] Creating recommendations >>>",
+      movies
+    );
     // Insert new recommendations
     await Recommendation.bulkCreate(
       movies.map((movie) => ({

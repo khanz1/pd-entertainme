@@ -152,7 +152,6 @@ describe("Auth API", () => {
         .post("/api/auth/login")
         .send(userSeed);
 
-      console.log(response.body, "<<< erccc");
       expect(response.status).toBe(200);
       expect(response.body.status).toBe(ApiResponseStatus.SUCCESS);
       expect(response.body.data.user.email).toBe(userSeed.email);

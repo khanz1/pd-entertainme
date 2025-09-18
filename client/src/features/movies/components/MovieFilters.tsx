@@ -36,17 +36,10 @@ export function MovieFilters({
 
   // Trigger search when debounced value changes
   useEffect(() => {
-    if (debouncedSearch !== searchQuery) {
+    if (debouncedSearch) {
       onSearchChange(debouncedSearch);
     }
-  }, [debouncedSearch, searchQuery, onSearchChange]);
-
-  // Sync local search with external search query changes
-  useEffect(() => {
-    if (searchQuery !== localSearch && searchQuery !== debouncedSearch) {
-      setLocalSearch(searchQuery);
-    }
-  }, [searchQuery, localSearch, debouncedSearch]);
+  }, [debouncedSearch]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

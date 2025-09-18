@@ -244,52 +244,15 @@ export const login = withErrorHandler(async (req: Request, res: Response) => {
  */
 export const loginWithGoogle = withErrorHandler(
   async (req: Request, res: Response) => {
-    // const requestData = await LoginWithGoogleSchema.parseAsync(req.body);
-
-    // const ticket = await client.verifyIdToken({
-    //   idToken: requestData.googleIdToken,
-    //   audience: Env.GOOGLE_CLIENT_ID,
-    // });
-
-    // const payload = ticket.getPayload();
-
-    // if (!payload) {
-    //   throw new UnauthorizedError(AuthError.INVALID_GOOGLE_ID_TOKEN);
-    // }
-
-    // const [user, created] = await User.findOrCreate({
-    //   where: { email: payload?.email },
-    //   defaults: {
-    //     name: payload.name || "",
-    //     email: payload.email || "",
-    //     password: Math.random().toString(36).substring(2, 15),
-    //     profilePict: payload.picture || "",
-    //   },
-    // });
-
-    // res.status(created ? 201 : 200).json({
-    //   status: ApiResponseStatus.SUCCESS,
-    //   data: {
-    //     created,
-    //     user: user.toJSON(),
-    //     accessToken: signToken({ id: user.id }),
-    //   },
-    // });
-
     const { code } = await LoginWithGoogleSchema.parseAsync(req.body);
-    console.log(code, "<<< loginWithGoogle.code");
 
-    // Exchange code for tokens
     const { tokens } = await client.getToken(code);
-    console.log(tokens, "<<< loginWithGoogle.tokens");
 
-    // Optional: Verify ID token
     const ticket = await client.verifyIdToken({
       idToken: tokens.id_token || "",
       audience: Env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    console.log(payload, "<<< loginWithGoogle.payload");
 
     if (!payload) {
       throw new UnauthorizedError(AuthError.INVALID_GOOGLE_ID_TOKEN);
