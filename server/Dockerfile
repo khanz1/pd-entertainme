@@ -6,7 +6,7 @@ WORKDIR /app
 
 # install all deps
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # copy your source & build
 COPY . .
@@ -31,7 +31,7 @@ ENV PORT=$PORT
 
 # install only prod deps
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --legacy-peer-deps
 
 # bring in built app
 COPY --from=builder /app/dist ./dist
