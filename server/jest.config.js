@@ -18,4 +18,5 @@ module.exports = {
   testTimeout: 30000,
   detectOpenHandles: true,
   silent: true,
+  forceExit: true,
 };
