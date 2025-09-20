@@ -3,7 +3,7 @@ import {
   calculateRecommendations,
   updateQueue,
 } from "./recommendation.service";
-import { QueueJobName } from "../../queue";
+import { QueueList } from "../../queue";
 import IORedis from "ioredis";
 import { Env } from "../../config/env";
 import { logger } from "../../utils/logger";
@@ -13,45 +13,34 @@ const connection = new IORedis(Env.REDIS_URL, {
 });
 
 export const movieRecommendationQueue = new Queue(
-  QueueJobName.MOVIE_RECOMMENDATION,
+  QueueList.CREATE_RECOMMENDATION_QUEUE,
   { connection }
 );
 
 const worker = new Worker(
-  QueueJobName.MOVIE_RECOMMENDATION,
+  QueueList.CREATE_RECOMMENDATION_QUEUE,
   async (job) => {
     const startTime = Date.now();
-    const jobs = await movieRecommendationQueue.getJobs(["waiting"], 0, 100);
 
     logger.info(
-      { waitingJobs: jobs.length },
-      "Movie recommendation queue: checking waiting jobs"
+      { jobId: job.id, userId: job.data.userId },
+      "Movie recommendation job: starting processing"
     );
 
-    if (job.name === QueueJobName.MOVIE_RECOMMENDATION) {
-      logger.info(
-        { jobId: job.id, userId: job.data.userId },
-        "Movie recommendation job: starting processing"
+    await updateQueue(job.id!, "process");
+
+    try {
+      await calculateRecommendations(job.data.userId);
+
+      const processingTime = Math.floor((Date.now() - startTime) / 1000);
+
+      await updateQueue(job.id!, "done", processingTime);
+    } catch (error) {
+      logger.error(
+        { error, jobId: job.id, userId: job.data.userId },
+        "Movie recommendation job: failed during processing"
       );
-
-      // Update status to 'process'
-      await updateQueue(job.id!, "process");
-
-      try {
-        await calculateRecommendations(job.data.userId);
-
-        // Calculate processing time in seconds
-        const processingTime = Math.floor((Date.now() - startTime) / 1000);
-
-        // Update status to 'done' with processing time
-        await updateQueue(job.id!, "done", processingTime);
-      } catch (error) {
-        logger.error(
-          { error, jobId: job.id, userId: job.data.userId },
-          "Movie recommendation job: failed during processing"
-        );
-        throw error; // Re-throw to trigger BullMQ's retry mechanism
-      }
+      throw error;
     }
   },
   {
@@ -59,8 +48,12 @@ const worker = new Worker(
   }
 );
 
-const queueEvents = new QueueEvents(QueueJobName.MOVIE_RECOMMENDATION, {
+const queueEvents = new QueueEvents(QueueList.CREATE_RECOMMENDATION_QUEUE, {
   connection,
+});
+
+queueEvents.on("waiting", ({ jobId }: { jobId: string }) => {
+  logger.info({ jobId }, "Movie recommendation job: waiting");
 });
 
 queueEvents.on("completed", ({ jobId }: { jobId: string }) => {
