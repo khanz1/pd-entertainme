@@ -22,6 +22,6 @@ RUN npm run build
 RUN useradd -m -u 1001 appuser && chown -R appuser:appuser /app
 USER appuser
 
-EXPOSE 8000
+EXPOSE 8022
 
 CMD ["npm", "run", "start:prod"]
