@@ -22,10 +22,6 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-      args:
-        NODE_ENV: production
-        GIT_SHA: ${GIT_SHA:-latest}
-        BUILD_DATE: ${BUILD_DATE}
     container_name: pd-entertainme-server-prod
     restart: unless-stopped
     ports:
