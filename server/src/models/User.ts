@@ -30,20 +30,6 @@ class User
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
-  // Serialize to camelCase for JSON responses
-  // public override toJSON(): object {
-  //   const values = { ...this.get() };
-  //   return {
-  //     id: values.id,
-  //     name: values.name,
-  //     profilePict: values.profilePict,
-  //     email: values.email,
-  //     createdAt: values.createdAt,
-  //     updatedAt: values.updatedAt,
-  //     // Never include password in JSON response
-  //   };
-  // }
-
   public async validatePassword(plainPassword: string): Promise<boolean> {
     const hashedPassword = this.getDataValue("password");
     if (!hashedPassword) {
@@ -71,10 +57,6 @@ User.init(
     profilePict: {
       type: DataTypes.STRING,
       allowNull: true,
-      // field: "profile_pict", // Maps to snake_case column in DB
-      // validate: {
-      //   isUrl: true,
-      // },
     },
     email: {
       type: DataTypes.STRING,

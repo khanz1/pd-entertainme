@@ -28,23 +28,15 @@ import {
 } from "@/features/movies/movie.api";
 import { MovieCard } from "@/features/movies/components/MovieCard";
 import { FavoritesEmptyState } from "@/features/movies/components/favorite/FavoriteEmptyState";
-import { useAuthError } from "@/hooks/useAuthError";
 
 export function ProfilePage() {
   const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
   );
-  const { handleAuthError } = useAuthError();
   const [activeTab, setActiveTab] = useState<
     "overview" | "favorites" | "recommendations"
   >("overview");
 
-  // Check authentication and redirect if needed
-  if (handleAuthError()) {
-    return null;
-  }
-
-  // Fetch user data
   const { data: userResponse, isLoading: isLoadingUser } = useGetUserMeQuery(
     undefined,
     {
@@ -52,13 +44,11 @@ export function ProfilePage() {
     }
   );
 
-  // Fetch favorites
   const { data: favoritesResponse, isLoading: isLoadingFavorites } =
     useGetFavoritesQuery(undefined, {
       skip: !isAuthenticated,
     });
 
-  // Fetch recommendations
   const { data: recommendationsResponse, isLoading: isLoadingRecommendations } =
     useGetRecommendationsQuery(undefined, {
       skip: !isAuthenticated,
@@ -68,7 +58,6 @@ export function ProfilePage() {
   const favorites = favoritesResponse?.data || [];
   const recommendations = recommendationsResponse?.data || [];
 
-  // Calculate statistics
   const totalFavorites = favorites.length;
   const avgRating =
     favorites.length > 0
@@ -78,7 +67,6 @@ export function ProfilePage() {
         ).toFixed(1)
       : "0.0";
 
-  // Get favorite genres
   const genreCount = favorites.reduce((acc, fav) => {
     fav.movie.genres?.forEach((genre) => {
       acc[genre.name] = (acc[genre.name] || 0) + 1;
@@ -91,7 +79,6 @@ export function ProfilePage() {
     .slice(0, 3)
     .map(([name]) => name);
 
-  // Get member since date
   const memberSince = currentUser?.createdAt
     ? new Date(currentUser.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
@@ -99,7 +86,6 @@ export function ProfilePage() {
       })
     : "Unknown";
 
-  // Loading state
   if (isLoadingUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -142,23 +128,35 @@ export function ProfilePage() {
         <Card className="p-8 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-6 md:space-y-0 md:space-x-8">
             {/* Avatar */}
-            <div className="relative">
-              <Avatar className="h-24 w-24 border-4 border-primary/20">
-                <AvatarImage
-                  src={currentUser.profilePict || "/placeholder.svg"}
-                  alt={currentUser.name}
-                  className="object-cover"
-                />
-                <AvatarFallback className="bg-primary/10 text-primary font-bold text-2xl">
-                  {currentUser.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1">
-                <User className="h-4 w-4 text-primary-foreground" />
+            <div className="relative group">
+              <div className="relative">
+                <Avatar className="h-24 w-24 border-4 border-gradient-to-r from-purple-500 to-pink-500 shadow-xl ring-4 ring-primary/10 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+                  <AvatarImage
+                    src={currentUser.profilePict || "/placeholder.svg"}
+                    alt={currentUser.name}
+                    className="object-cover transition-all duration-300 group-hover:brightness-110"
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold text-2xl shadow-inner">
+                    {currentUser.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+
+                {/* Animated ring effect */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300 animate-pulse" />
+              </div>
+
+              {/* Status indicator */}
+              <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-full p-1.5 shadow-lg ring-2 ring-background">
+                <User className="h-4 w-4 text-white" />
+              </div>
+
+              {/* Floating badges */}
+              <div className="absolute -top-2 -left-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
+                Pro
               </div>
             </div>
 
@@ -351,6 +349,7 @@ export function ProfilePage() {
                     <MovieCard
                       key={recommendation.id}
                       movie={recommendation.movie}
+                      aiReason={recommendation.reason}
                       className="w-full"
                     />
                   ))}
@@ -434,6 +433,8 @@ export function ProfilePage() {
                     <MovieCard
                       key={recommendation.id}
                       movie={recommendation.movie}
+                      aiReason={recommendation.reason}
+                      className="w-full"
                     />
                   ))}
                 </div>

@@ -61,30 +61,8 @@ class Movie
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
-  // Association methods
   public addGenre!: BelongsToManyAddAssociationMixin<Genre, number>;
   public getGenres!: BelongsToManyGetAssociationsMixin<Genre>;
-
-  // Serialize to camelCase for JSON responses
-  // public override toJSON(): object {
-  //   const values = { ...this.get() };
-  //   return {
-  //     id: values.id,
-  //     tmdbId: values.tmdbId,
-  //     title: values.title,
-  //     overview: values.overview,
-  //     releaseDate: values.releaseDate,
-  //     posterPath: values.posterPath,
-  //     backdropPath: values.backdropPath,
-  //     voteAverage: values.voteAverage,
-  //     voteCount: values.voteCount,
-  //     popularity: values.popularity,
-  //     adult: values.adult,
-  //     originalLanguage: values.originalLanguage,
-  //     createdAt: values.createdAt,
-  //     updatedAt: values.updatedAt,
-  //   };
-  // }
 }
 
 Movie.init(
@@ -98,7 +76,6 @@ Movie.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
-      // field: "tmdb_id", // Maps to snake_case column in DB
       validate: {
         notNull: true,
         isInt: true,
@@ -119,23 +96,19 @@ Movie.init(
     releaseDate: {
       type: DataTypes.DATEONLY,
       allowNull: true,
-      // field: "release_date", // Maps to snake_case column in DB
     },
     posterPath: {
       type: DataTypes.STRING,
       allowNull: true,
-      // field: "poster_path", // Maps to snake_case column in DB
     },
     backdropPath: {
       type: DataTypes.STRING,
       allowNull: true,
-      // field: "backdrop_path", // Maps to snake_case column in DB
     },
     voteAverage: {
       type: DataTypes.FLOAT,
       allowNull: false,
       defaultValue: 0,
-      // field: "vote_average", // Maps to snake_case column in DB
       validate: {
         min: 0,
         max: 10,
@@ -145,7 +118,6 @@ Movie.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
-      // field: "vote_count", // Maps to snake_case column in DB
       validate: {
         min: 0,
       },
@@ -166,7 +138,6 @@ Movie.init(
     originalLanguage: {
       type: DataTypes.STRING(10),
       allowNull: true,
-      //  field: "original_language", // Maps to snake_case column in DB
     },
     createdAt: {
       type: DataTypes.DATE,

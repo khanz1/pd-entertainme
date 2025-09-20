@@ -677,17 +677,12 @@ const options: swaggerJsdoc.Options = {
         name: "Favorites",
         description: "User's favorite movies management",
       },
-      // {
-      //   name: "Recommendations",
-      //   description: "AI-powered movie recommendations",
-      // },
     ],
   },
   apis: [
-    // In production, read from dist folder; in development, read from src
     process.env.NODE_ENV === "production"
-      ? "./dist/apis/**/*.js" // Production: Compiled JavaScript files with preserved comments
-      : "./src/apis/**/*.ts", // Development: TypeScript source files
+      ? "./dist/apis/**/*.js"
+      : "./src/apis/**/*.ts",
   ],
 };
 

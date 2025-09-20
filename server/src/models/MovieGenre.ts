@@ -21,18 +21,6 @@ class MovieGenre
   public genreId!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
-  // Serialize to camelCase for JSON responses
-  // public override toJSON(): object {
-  //   const values = { ...this.get() };
-  //   return {
-  //     id: values.id,
-  //     movieId: values.movieId,
-  //     genreId: values.genreId,
-  //     createdAt: values.createdAt,
-  //     updatedAt: values.updatedAt,
-  //   };
-  // }
 }
 
 MovieGenre.init(

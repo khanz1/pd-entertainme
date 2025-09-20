@@ -3,7 +3,7 @@ import { AuthenticatedRequest } from "../types/express.type";
 import { Favorite } from "../models";
 
 export const guardAuthor = withErrorHandler<AuthenticatedRequest>(
-  async (req, res, next) => {
+  async (req, _res, next) => {
     const favorite = await Favorite.findByPk(req.params.id);
     if (!favorite) {
       throw new NotFoundError("Favorite not found");

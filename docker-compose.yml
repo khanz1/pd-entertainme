@@ -1,5 +1,4 @@
 services:
-  # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
     container_name: pd-entertainme-postgres-dev
@@ -18,7 +17,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis for queue management and caching
   redis:
     image: redis:7-alpine
     container_name: pd-entertainme-redis-dev
@@ -34,7 +32,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Server (API)
   server:
     build:
       context: ./server
@@ -57,31 +54,6 @@ services:
       - ./server/tsconfig.json:/app/tsconfig.json:ro
       - ./server/tsconfig.build.json:/app/tsconfig.build.json:ro
     command: npm run dev
-
-  # Client (Frontend)
-  # client:
-  #   build:
-  #     context: ./client
-  #     dockerfile: Dockerfile
-  #     target: development
-  #   container_name: pd-entertainme-client-dev
-  #   restart: unless-stopped
-  #   ports:
-  #     - "5173:5173"
-  #   env_file:
-  #     - ./client/.env.development
-  #   volumes:
-  #     - ./client/src:/app/src:ro
-  #     - ./client/public:/app/public:ro
-  #     - ./client/package.json:/app/package.json:ro
-  #     - ./client/package-lock.json:/app/package-lock.json:ro
-  #     - ./client/vite.config.ts:/app/vite.config.ts:ro
-  #     - ./client/tsconfig.json:/app/tsconfig.json:ro
-  #     - ./client/tsconfig.app.json:/app/tsconfig.app.json:ro
-  #     - ./client/index.html:/app/index.html:ro
-  #     - ./client/tailwind.config.js:/app/tailwind.config.js:ro
-  #   depends_on:
-  #     - server
 
 volumes:
   redis_data:

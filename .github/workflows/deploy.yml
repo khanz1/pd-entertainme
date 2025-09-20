@@ -10,11 +10,9 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      # 1) Checkout your code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) Copy deployment files to EC2
       - name: Copy deployment files
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -25,7 +23,6 @@ jobs:
           source: "docker-compose.prod.yml,scripts/prod.sh,server/**"
           target: "~/app/"
 
-      # 3) SSH into EC2 and deploy using existing prod.sh script
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -52,7 +49,7 @@ jobs:
 
             # Wait a bit for services to stabilize
             echo "⏳ Waiting for services to stabilize..."
-            sleep 15
+            sleep 10
 
             # Perform additional health checks
             echo "🔍 Performing health checks..."

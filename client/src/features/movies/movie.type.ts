@@ -27,6 +27,7 @@ export interface Recommendation {
   id: number;
   userId: number;
   movieId: number;
+  reason: string;
   createdAt: string;
   updatedAt: string;
   movie: Movie;

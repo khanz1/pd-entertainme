@@ -4,22 +4,19 @@ import { Env } from "../config/env";
 const isProduction = Env.NODE_ENV === "production";
 const isTest = Env.NODE_ENV === "test";
 
-// Create base logger configuration
 const baseConfig = {
-  name: "entertainme-server",
+  name: "server",
   level: isProduction ? "info" : "debug",
   base: {
     pid: process.pid,
-    hostname: undefined, // Remove hostname for cleaner logs
+    hostname: undefined,
   },
 };
 
-// Configure transport for non-production environments
 export const logger = pino(
   isProduction || isTest
     ? {
         ...baseConfig,
-        // Production/Test: JSON logs for better machine parsing
         formatters: {
           level: (label) => {
             return { level: label };
@@ -28,7 +25,6 @@ export const logger = pino(
       }
     : {
         ...baseConfig,
-        // Development: Pretty logs for better human readability
         transport: {
           target: "pino-pretty",
           options: {
@@ -37,7 +33,6 @@ export const logger = pino(
             ignore: "pid,hostname",
             singleLine: false,
             hideObject: false,
-            // messageFormat: "[{name}] {msg}",
           },
         },
       }

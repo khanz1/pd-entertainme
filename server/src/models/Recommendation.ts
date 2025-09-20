@@ -5,6 +5,7 @@ interface RecommendationAttributes {
   id: number;
   userId: number;
   movieId: number;
+  reason: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,20 +23,9 @@ class Recommendation
   public id!: number;
   public userId!: number;
   public movieId!: number;
+  public reason!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
-  // Serialize to camelCase for JSON responses
-  // public override toJSON(): object {
-  //   const values = { ...this.get() };
-  //   return {
-  //     id: values.id,
-  //     userId: values.userId,
-  //     movieId: values.movieId,
-  //     createdAt: values.createdAt,
-  //     updatedAt: values.updatedAt,
-  //   };
-  // }
 }
 
 Recommendation.init(
@@ -60,6 +50,10 @@ Recommendation.init(
         model: "movies",
         key: "id",
       },
+    },
+    reason: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
     createdAt: {
       type: DataTypes.DATE,

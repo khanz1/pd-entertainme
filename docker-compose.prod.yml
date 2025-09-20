@@ -1,5 +1,4 @@
 services:
-  # Redis for queue management and caching
   redis:
     image: redis:7-alpine
     container_name: pd-entertainme-redis-prod
@@ -17,7 +16,6 @@ services:
     networks:
       - app-network
 
-  # Server (API)
   server:
     build:
       context: ./server
