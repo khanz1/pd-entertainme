@@ -11,7 +11,23 @@ import { logger } from "./utils/logger";
 
 const app = express();
 
-app.use(morgan("combined"));
+app.set("trust proxy", true);
+
+morgan.token("real-ip", (req) => {
+  const xRealIp = req.headers["x-real-ip"];
+  const xForwardedFor = Array.isArray(req.headers["x-forwarded-for"])
+    ? req.headers["x-forwarded-for"][0]
+    : req.headers["x-forwarded-for"]?.split(",")[0]?.trim();
+  const ip = (req as any).ip;
+  const remoteAddress = req.socket.remoteAddress;
+
+  return xRealIp || xForwardedFor || ip || remoteAddress;
+});
+
+const logFormat =
+  ':real-ip - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
+
+app.use(morgan(logFormat));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

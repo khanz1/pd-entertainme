@@ -3,13 +3,12 @@ import {
   Movie,
   Recommendation,
   RecommendationQueue,
-  sequelize,
 } from "../../models";
 import { openaiClient } from "../../lib/openai";
-import { z } from "zod";
 import { logger } from "../../utils/logger";
 import * as movieService from "./movie.service";
 import { movieRecommendationQueue } from "./recommendation.queue";
+import { QueueJobName } from "../../queue";
 
 const getPrompt = (movieTitles: string[]) => {
   return `
@@ -188,13 +187,13 @@ export const addQueue = async (userId: number) => {
 
     // Add job to BullMQ queue
     const job = await movieRecommendationQueue.add(
-      "movie-recommendation",
+      QueueJobName.MOVIE_RECOMMENDATION,
       { userId },
       {
         attempts: 3,
         backoff: {
-          type: "exponential",
-          delay: 2000,
+          type: "fixed",
+          delay: 60000,
         },
       }
     );
