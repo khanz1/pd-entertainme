@@ -13,10 +13,16 @@ if ! docker info > /dev/null 2>&1; then
     echo "❌ Docker is not running. Please start Docker and try again."
     exit 1
 fi
- 
+ # Stop old ad-hoc container if it exists
+docker rm -f pd-entertainme-server || true
+
+# Tear down any compose stack and free ports
+cd ~/app
+docker-compose -f docker-compose.prod.yml down --remove-orphans || true
+
 # Build and start services
-echo "🔨 Building server image (no cache)..."
-docker-compose -f docker-compose.prod.yml build --no-cache server
+echo "🔨 Building server image (no cache, pull latest base image)..."
+docker-compose -f docker-compose.prod.yml build --no-cache --pull server
 
 echo "🚀 Starting production services..."
 docker-compose -f docker-compose.prod.yml up -d --force-recreate
