@@ -48,3 +48,5 @@ export interface UserMeResponse {
     user: User;
   };
 }
+
+// Removed refresh token interfaces - no longer supported

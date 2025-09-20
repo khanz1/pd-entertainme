@@ -1,0 +1,94 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: pd-entertainme-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+
+  # Redis for queue management and caching
+  redis:
+    image: redis:7-alpine
+    container_name: pd-entertainme-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+
+  # Server (API)
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    container_name: pd-entertainme-server-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./server/.env.development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./server/src:/app/src:ro
+      - ./server/package.json:/app/package.json:ro
+      - ./server/package-lock.json:/app/package-lock.json:ro
+      - ./server/tsconfig.json:/app/tsconfig.json:ro
+      - ./server/tsconfig.build.json:/app/tsconfig.build.json:ro
+    command: npm run dev
+
+  # Client (Frontend)
+  # client:
+  #   build:
+  #     context: ./client
+  #     dockerfile: Dockerfile
+  #     target: development
+  #   container_name: pd-entertainme-client-dev
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5173:5173"
+  #   env_file:
+  #     - ./client/.env.development
+  #   volumes:
+  #     - ./client/src:/app/src:ro
+  #     - ./client/public:/app/public:ro
+  #     - ./client/package.json:/app/package.json:ro
+  #     - ./client/package-lock.json:/app/package-lock.json:ro
+  #     - ./client/vite.config.ts:/app/vite.config.ts:ro
+  #     - ./client/tsconfig.json:/app/tsconfig.json:ro
+  #     - ./client/tsconfig.app.json:/app/tsconfig.app.json:ro
+  #     - ./client/index.html:/app/index.html:ro
+  #     - ./client/tailwind.config.js:/app/tailwind.config.js:ro
+  #   depends_on:
+  #     - server
+
+volumes:
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: pd-entertainme-dev-network

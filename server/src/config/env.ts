@@ -20,6 +20,9 @@ dotenv.config({
   path: envPath,
 });
 
+console.log("envPath", envPath);
+console.log("process.env.NODE_ENV", process.env.NODE_ENV);
+
 const EnvSchema = z.object({
   PORT: z
     .string({ error: "PORT is required" })
@@ -72,3 +75,5 @@ export type IEnv = z.infer<typeof EnvSchema> & {
 };
 
 export const Env = EnvSchema.parse(process.env) as IEnv;
+
+console.log("Env", Env);

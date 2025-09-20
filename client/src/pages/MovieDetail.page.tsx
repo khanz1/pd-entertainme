@@ -23,6 +23,7 @@ import {
 } from "@/features/movies/movie.api";
 import { useAppSelector } from "@/hooks/useRedux";
 import { toast } from "sonner";
+import { useAuthError } from "@/hooks/useAuthError";
 
 export function MovieDetailPage() {
   const routeParams = useParams();
@@ -30,6 +31,7 @@ export function MovieDetailPage() {
   const movieId = Number.parseInt(routeParams.id as string);
 
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { requireAuth } = useAuthError();
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
   const {
@@ -50,31 +52,29 @@ export function MovieDetailPage() {
   const currentFavorite = favoriteResponse?.data;
 
   const handleToggleFavorite = async () => {
-    if (!isAuthenticated) {
-      toast("Please login to manage favorites");
-      return;
-    }
-
     if (!movieDetail) return;
 
-    setIsTogglingFavorite(true);
+    // Use requireAuth to handle authentication check and redirect
+    requireAuth(async () => {
+      setIsTogglingFavorite(true);
 
-    try {
-      if (movieDetail.isFavorite && currentFavorite) {
-        // Remove from favorites
-        await removeMovieFromFavorites(currentFavorite.id).unwrap();
-        toast("Movie removed from favorites!");
-      } else {
-        // Add to favorites
-        await addMovieToFavorites({ tmdbId: movieDetail.id }).unwrap();
-        toast("Movie added to favorites!");
+      try {
+        if (movieDetail.isFavorite && currentFavorite) {
+          // Remove from favorites
+          await removeMovieFromFavorites(currentFavorite.id).unwrap();
+          toast("Movie removed from favorites!");
+        } else {
+          // Add to favorites
+          await addMovieToFavorites({ tmdbId: movieDetail.id }).unwrap();
+          toast("Movie added to favorites!");
+        }
+      } catch (error: any) {
+        console.error("Failed to toggle favorite:", error);
+        toast(error?.data?.message || "Failed to update favorites");
+      } finally {
+        setIsTogglingFavorite(false);
       }
-    } catch (error: any) {
-      console.error("Failed to toggle favorite:", error);
-      toast(error?.data?.message || "Failed to update favorites");
-    } finally {
-      setIsTogglingFavorite(false);
-    }
+    });
   };
 
   if (isLoadingMovieDetail) {

@@ -28,14 +28,21 @@ import {
 } from "@/features/movies/movie.api";
 import { MovieCard } from "@/features/movies/components/MovieCard";
 import { FavoritesEmptyState } from "@/features/movies/components/favorite/FavoriteEmptyState";
+import { useAuthError } from "@/hooks/useAuthError";
 
 export function ProfilePage() {
   const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
   );
+  const { handleAuthError } = useAuthError();
   const [activeTab, setActiveTab] = useState<
     "overview" | "favorites" | "recommendations"
   >("overview");
+
+  // Check authentication and redirect if needed
+  if (handleAuthError()) {
+    return null;
+  }
 
   // Fetch user data
   const { data: userResponse, isLoading: isLoadingUser } = useGetUserMeQuery(

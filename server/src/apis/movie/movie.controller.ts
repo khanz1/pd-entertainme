@@ -218,24 +218,24 @@ export const getMovieById = withErrorHandler<AuthenticatedRequest>(
         throw new NotFoundError(MovieError.MOVIE_NOT_FOUND);
       }
 
-      logger.debug(
-        { movieId: id, userId: req.user!.id },
-        "Checking if movie is favorited by user"
-      );
-      const favorite = await Favorite.findOne({
-        where: {
-          userId: req.user!.id,
-        },
-        include: [
-          {
-            model: Movie,
-            as: "movie",
-            where: {
-              tmdbId: id,
-            },
+      let isFavorite = false;
+      if (req.user) {
+        const favorite = await Favorite.findOne({
+          where: {
+            userId: req.user!.id,
           },
-        ],
-      });
+          include: [
+            {
+              model: Movie,
+              as: "movie",
+              where: {
+                tmdbId: id,
+              },
+            },
+          ],
+        });
+        isFavorite = favorite ? true : false;
+      }
 
       const movie = response.data;
       const urlPath = `https://image.tmdb.org/t/p/w500`;
@@ -249,7 +249,7 @@ export const getMovieById = withErrorHandler<AuthenticatedRequest>(
       res.json({
         status: ApiResponseStatus.SUCCESS,
         data: {
-          isFavorite: favorite ? true : false,
+          isFavorite,
           adult: movie.adult,
           backdropPath: `${originalUrlPath}${movie.backdrop_path}`,
           belongsToCollection: {

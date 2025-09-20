@@ -14,44 +14,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) Set up Node.js for testing
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      # 2) Copy deployment files to EC2
+      - name: Copy deployment files
+        uses: appleboy/scp-action@v0.1.7
         with:
-          node-version: "22.x"
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: "docker-compose.prod.yml,scripts/prod.sh,server/**"
+          target: "~/app/"
 
-      # 3) Install dependencies & run tests (server only)
-      - name: Install dependencies
-        working-directory: ./server
-        run: npm ci --legacy-peer-deps
-      # - name: Run tests
-      #   working-directory: ./server
-      #   run: npm run test
-
-      # 4) Log in to Docker Hub
-      - name: Docker Hub Login
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # 5) Build & push the Docker image (using server Dockerfile)
-      - name: Build & Push Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./server
-          file: ./server/Dockerfile # explicitly reference server Dockerfile
-          push: true
-          no-cache: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/pd-entertainme-server:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/pd-entertainme-server:${{ github.sha }}
-          labels: |
-            org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.created=${{ steps.meta.outputs.created }}
-
-      # 6) SSH into EC2 and deploy
+      # 3) SSH into EC2 and deploy using existing prod.sh script
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -60,44 +34,47 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            # Create app directory and environment file
-            mkdir -p ~/app
-            cat << 'EOF' > ~/app/.env.production
+            # Create necessary directories
+            mkdir -p ~/app/server
+
+            # Create production environment file
+            cat << 'EOF' > ~/app/server/.env.production
             ${{ secrets.PROD_ENV_FILE }}
             EOF
 
-            # Pull specific image by immutable SHA
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/pd-entertainme-server:${{ github.sha }}
+            # Make prod.sh executable
+            chmod +x ~/app/scripts/prod.sh
 
-            # Stop and remove existing containers with better error handling
-            echo "Checking for existing containers..."
-            if docker ps -a --format "table {{.Names}}" | grep -q "pd-entertainme-server"; then
-              echo "Stopping existing pd-entertainme-server container..."
-              docker stop pd-entertainme-server
-              echo "Removing existing pd-entertainme-server container..."
-              docker rm pd-entertainme-server
-            else
-              echo "No existing pd-entertainme-server container found (this is normal for first deployment)"
-            fi
+            # Change to app directory and run production script
+            cd ~/app
+            echo "🚀 Running production deployment script..."
+            ./scripts/prod.sh
 
-            # Source environment variables and start the main application
-            source ~/app/.env.production
-            echo "🚀 Starting pd-entertainme-server application on port ${PORT:-8000}... (commit ${{ github.sha }})"
-            docker run -d \
-              --name pd-entertainme-server \
-              --restart unless-stopped \
-              --env-file ~/app/.env.production \
-              -p ${PORT:-8000}:${PORT:-8000} \
-              ${{ secrets.DOCKERHUB_USERNAME }}/pd-entertainme-server:${{ github.sha }}
-
-            # Wait for application to be ready
-            echo "⏳ Waiting for application to be ready..."
+            # Wait a bit for services to stabilize
+            echo "⏳ Waiting for services to stabilize..."
             sleep 15
 
-            # Check application health
-            if curl -f http://localhost:${PORT:-8000}/api > /dev/null 2>&1; then
-              echo "✅ Application is healthy and running on port ${PORT:-8000}"
+            # Perform additional health checks
+            echo "🔍 Performing health checks..."
+
+            # Check Redis health
+            if docker exec pd-entertainme-redis-prod redis-cli ping > /dev/null 2>&1; then
+              echo "✅ Redis is healthy"
+            else
+              echo "⚠️ Redis health check failed"
+              docker logs pd-entertainme-redis-prod --tail 10
+            fi
+
+            # Check application health (using port 8022 from docker-compose.prod.yml)
+            if curl -f http://localhost:8022/api > /dev/null 2>&1; then
+              echo "✅ Application is healthy and running on port 8022"
+              echo "🌐 API Documentation: http://localhost:8022/docs"
             else
               echo "⚠️ Application health check failed, checking logs..."
-              docker logs pd-entertainme-server --tail 20
+              docker logs pd-entertainme-server-prod --tail 20
             fi
+
+            echo ""
+            echo "🎉 Deployment completed successfully!"
+            echo "📊 Final Status:"
+            docker-compose -f docker-compose.prod.yml ps
