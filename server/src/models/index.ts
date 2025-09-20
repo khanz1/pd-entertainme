@@ -5,6 +5,7 @@ import Genre from "./Genre";
 import Favorite from "./Favorite";
 import MovieGenre from "./MovieGenre";
 import Recommendation from "./Recommendation";
+import RecommendationQueue from "./RecommendationQueue";
 
 // Define associations
 // User - Favorites relationship (One-to-Many)
@@ -109,7 +110,28 @@ Recommendation.belongsTo(Movie, {
   as: "movie",
 });
 
-export { sequelize, User, Movie, Genre, Favorite, MovieGenre, Recommendation };
+// User - RecommendationQueue relationship (One-to-Many)
+User.hasMany(RecommendationQueue, {
+  foreignKey: "userId",
+  as: "recommendationQueues",
+  onDelete: "CASCADE",
+});
+
+RecommendationQueue.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+export {
+  sequelize,
+  User,
+  Movie,
+  Genre,
+  Favorite,
+  MovieGenre,
+  Recommendation,
+  RecommendationQueue,
+};
 
 export default {
   sequelize,
@@ -118,4 +140,6 @@ export default {
   Genre,
   Favorite,
   MovieGenre,
+  Recommendation,
+  RecommendationQueue,
 };

@@ -81,11 +81,15 @@ export const register = withErrorHandler(
     const requestData = await RegisterSchema.parseAsync(req.body);
     const user = await User.create(requestData);
     const { password, ...newUser } = user.toJSON();
+
+    // Generate token pair with refresh token
+    const accessToken = signToken({ id: user.id });
+
     res.status(201).json({
       status: ApiResponseStatus.SUCCESS,
       data: {
         user: newUser,
-        accessToken: signToken({ id: newUser.id }),
+        accessToken,
       },
     });
   }
@@ -159,12 +163,17 @@ export const login = withErrorHandler(async (req: Request, res: Response) => {
   if (!isPasswordCorrect) {
     throw new UnauthorizedError(AuthError.INCORRECT_EMAIL_OR_PASSWORD);
   }
+
   const { password: _, ...userData } = user.toJSON();
+
+  // Generate token pair with refresh token
+  const accessToken = signToken({ id: user.id });
+
   res.status(200).json({
     status: ApiResponseStatus.SUCCESS,
     data: {
       user: userData,
-      accessToken: signToken({ id: user.id }),
+      accessToken,
     },
   });
 });
@@ -268,12 +277,15 @@ export const loginWithGoogle = withErrorHandler(
       },
     });
 
+    // Generate token pair with refresh token
+    const accessToken = signToken({ id: user.id });
+
     res.status(created ? 201 : 200).json({
       status: ApiResponseStatus.SUCCESS,
       data: {
         created,
         user: user.toJSON(),
-        accessToken: signToken({ id: user.id }),
+        accessToken,
       },
     });
   }

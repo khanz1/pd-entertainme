@@ -3,9 +3,7 @@ import { Env } from "../config/env";
 import bcrypt from "bcryptjs";
 
 export const signToken = (payload: Record<string, any>) => {
-  return jwt.sign(payload, Env.JWT_SECRET, {
-    expiresIn: Env.JWT_EXPIRES_IN,
-  });
+  return jwt.sign(payload, Env.JWT_SECRET);
 };
 
 export const verifyToken = <T>(token: string) => {

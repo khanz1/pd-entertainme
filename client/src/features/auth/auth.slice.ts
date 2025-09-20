@@ -15,7 +15,10 @@ export const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ user: User; accessToken: string }>
+      action: PayloadAction<{
+        user: User;
+        accessToken: string;
+      }>
     ) => {
       const { user, accessToken } = action.payload;
       state.user = user;
@@ -43,9 +46,11 @@ export const authSlice = createSlice({
 
     setIsAuthenticated: (state, action: PayloadAction<boolean>) => {
       state.isAuthenticated = action.payload;
-      state.accessToken = action.payload
-        ? localStorage.getItem("accessToken")
-        : null;
+      if (action.payload) {
+        state.accessToken = localStorage.getItem("accessToken");
+      } else {
+        state.accessToken = null;
+      }
     },
   },
 });

@@ -1,6 +1,9 @@
 import { Router } from "express";
 import * as MovieController from "./movie.controller";
-import { authenticatation } from "../../middleware/authentication";
+import {
+  authenticatation,
+  optionalAuthentication,
+} from "../../middleware/authentication";
 
 const movieRouter = Router();
 
@@ -10,6 +13,6 @@ movieRouter.get(
   authenticatation,
   MovieController.getRecommendations
 );
-movieRouter.get("/:id", authenticatation, MovieController.getMovieById);
+movieRouter.get("/:id", optionalAuthentication, MovieController.getMovieById);
 
 export default movieRouter;

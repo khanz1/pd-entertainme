@@ -7,22 +7,26 @@ import {
 } from "@/features/movies/movie.api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useAuthError } from "@/hooks/useAuthError";
 
 export function FavoritePage() {
   const { data: favoritesResponse, isLoading, error } = useGetFavoritesQuery();
+  const { requireAuth } = useAuthError();
 
   const [removeFavorite] = useRemoveFavoriteMutation();
 
   const favorites = favoritesResponse?.data || [];
 
   const handleRemoveFavorite = async (favoriteId: number) => {
-    try {
-      await removeFavorite(favoriteId).unwrap();
-      toast("Movie removed from favorites");
-    } catch (err: any) {
-      console.error("Failed to remove favorite:", err);
-      toast(err?.data?.message || "Failed to remove movie from favorites");
-    }
+    requireAuth(async () => {
+      try {
+        await removeFavorite(favoriteId).unwrap();
+        toast("Movie removed from favorites");
+      } catch (err: any) {
+        console.error("Failed to remove favorite:", err);
+        toast(err?.data?.message || "Failed to remove movie from favorites");
+      }
+    });
   };
 
   if (isLoading) {

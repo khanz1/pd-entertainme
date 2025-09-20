@@ -3,7 +3,7 @@ import { logger } from "./logger";
 import { ZodError } from "zod";
 import { ApiResponseStatus } from "../apis/app.type";
 import { UniqueConstraintError, ValidationError } from "sequelize";
-import { JsonWebTokenError } from "jsonwebtoken";
+import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { AxiosError } from "axios";
 // Note: avoid importing from middleware to prevent circular dependencies
 
@@ -112,11 +112,19 @@ export const globalErrorHandler = (
       details: err.details,
     });
   } else if (err instanceof JsonWebTokenError) {
-    res.status(401).json({
-      statusCode: 401,
-      status: ApiResponseStatus.ERROR,
-      message: "Invalid token",
-    });
+    if (err instanceof TokenExpiredError) {
+      res.status(401).json({
+        statusCode: 401,
+        status: ApiResponseStatus.ERROR,
+        message: "Token expired",
+      });
+    } else {
+      res.status(401).json({
+        statusCode: 401,
+        status: ApiResponseStatus.ERROR,
+        message: "Invalid token",
+      });
+    }
   } else {
     res.status(500).json({
       statusCode: 500,

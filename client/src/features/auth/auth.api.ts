@@ -38,6 +38,8 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["Auth"],
     }),
 
+    // Removed refresh token endpoint - no longer supported
+
     // User endpoints
     getUserMe: builder.query<UserMeResponse, void>({
       query: () => "/auth/me",

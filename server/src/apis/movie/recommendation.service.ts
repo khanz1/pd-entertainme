@@ -1,8 +1,15 @@
-import { Favorite, Movie, Recommendation, sequelize } from "../../models";
+import {
+  Favorite,
+  Movie,
+  Recommendation,
+  RecommendationQueue,
+  sequelize,
+} from "../../models";
 import { openaiClient } from "../../lib/openai";
 import { z } from "zod";
 import { logger } from "../../utils/logger";
 import * as movieService from "./movie.service";
+import { movieRecommendationQueue } from "./recommendation.queue";
 
 const getPrompt = (movieTitles: string[]) => {
   return `
@@ -152,6 +159,113 @@ export const calculateRecommendations = async (userId: number) => {
     logger.error(
       { error: err, userId },
       "calculateRecommendations: Failed to calculate recommendations"
+    );
+    throw err;
+  }
+};
+
+export const addQueue = async (userId: number) => {
+  try {
+    logger.info(
+      { userId },
+      "addQueue: Adding recommendation queue job for user"
+    );
+
+    // Add job to BullMQ queue
+    const job = await movieRecommendationQueue.add(
+      "movie-recommendation",
+      { userId },
+      {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 2000,
+        },
+      }
+    );
+
+    logger.debug(
+      { jobId: job.id, userId },
+      "addQueue: Job added to BullMQ queue"
+    );
+
+    // Insert record to RecommendationQueue table
+    const queueRecord = await RecommendationQueue.create({
+      jobId: job.id!,
+      userId,
+      status: "queue",
+      processingTime: 0,
+    });
+
+    logger.info(
+      { jobId: job.id, userId, queueRecordId: queueRecord.id },
+      "addQueue: Successfully created queue record"
+    );
+
+    return {
+      jobId: job.id,
+      queueRecord,
+    };
+  } catch (err) {
+    logger.error(
+      { error: err, userId },
+      "addQueue: Failed to add recommendation queue"
+    );
+    throw err;
+  }
+};
+
+export const updateQueue = async (
+  jobId: string,
+  status: "process" | "done",
+  processingTime?: number
+) => {
+  try {
+    logger.debug(
+      { jobId, status, processingTime },
+      "updateQueue: Updating queue status"
+    );
+
+    const updateData: Partial<{
+      status: "queue" | "process" | "done";
+      processingTime: number;
+      updatedAt: Date;
+    }> = {
+      status,
+      updatedAt: new Date(),
+    };
+
+    // If status is 'done', update processing time
+    if (status === "done" && processingTime !== undefined) {
+      updateData.processingTime = processingTime;
+    }
+
+    const [updatedRowsCount] = await RecommendationQueue.update(updateData, {
+      where: { jobId },
+    });
+
+    if (updatedRowsCount === 0) {
+      logger.warn(
+        { jobId, status },
+        "updateQueue: No queue record found for jobId"
+      );
+      return null;
+    }
+
+    const updatedRecord = await RecommendationQueue.findOne({
+      where: { jobId },
+    });
+
+    logger.info(
+      { jobId, status, processingTime, recordId: updatedRecord?.id },
+      "updateQueue: Successfully updated queue status"
+    );
+
+    return updatedRecord;
+  } catch (err) {
+    logger.error(
+      { error: err, jobId, status },
+      "updateQueue: Failed to update queue status"
     );
     throw err;
   }
