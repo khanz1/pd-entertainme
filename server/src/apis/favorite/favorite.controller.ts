@@ -12,7 +12,7 @@ import { BadRequestError } from "../../utils/error";
 import { movieRecommendationQueue } from "../movie/recommendation.queue";
 import { QueueJobName } from "../../queue";
 import { Env } from "../../config/env";
-import { addQueue } from "apis/movie/recommendation.service";
+import { addQueue } from "../../apis/movie/recommendation.service";
 // import { GetFavoriteByIdSchema } from "./schema/get.schema";
 
 export enum FavoriteError {
