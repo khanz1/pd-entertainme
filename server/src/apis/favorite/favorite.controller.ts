@@ -155,9 +155,6 @@ export const createFavorite = withErrorHandler<AuthenticatedRequest>(
 
       if (Env.NODE_ENV !== "test") {
         await addQueue(req.user!.id);
-        await movieRecommendationQueue.add(QueueJobName.MOVIE_RECOMMENDATION, {
-          userId: req.user!.id,
-        });
       }
 
       res.json({
@@ -602,9 +599,6 @@ export const deleteFavorite = withErrorHandler<AuthenticatedRequest>(
 
     if (Env.NODE_ENV !== "test") {
       await addQueue(req.user!.id);
-      await movieRecommendationQueue.add(QueueJobName.MOVIE_RECOMMENDATION, {
-        userId: req.user!.id,
-      });
     }
 
     res.json({

@@ -101,15 +101,18 @@ export const calculateRecommendations = async (userId: number) => {
     }
 
     // search movie using tmdb api /search/movie
-    const recommendations = (data as { recommendation: { title: string; reason: string }[] })
-      .recommendation;
+    const recommendations = (
+      data as { recommendation: { title: string; reason: string }[] }
+    ).recommendation;
     const movies = [];
     for (const recommendation of recommendations) {
       logger.debug(
         { recommendation, userId },
         "calculateRecommendations: Searching for movie in TMDB"
       );
-      const movie = await movieService.searchMovieFromTMDB(recommendation.title);
+      const movie = await movieService.searchMovieFromTMDB(
+        recommendation.title
+      );
       if (movie.results.length > 0) {
         const movieDetail = await movieService.getMovieFromTMDBById(
           movie.results[0].id
@@ -196,7 +199,7 @@ export const addQueue = async (userId: number) => {
       }
     );
 
-    logger.debug(
+    logger.info(
       { jobId: job.id, userId },
       "addQueue: Job added to BullMQ queue"
     );
@@ -235,7 +238,7 @@ export const updateQueue = async (
   processingTime?: number
 ) => {
   try {
-    logger.debug(
+    logger.info(
       { jobId, status, processingTime },
       "updateQueue: Updating queue status"
     );
@@ -266,16 +269,23 @@ export const updateQueue = async (
       return null;
     }
 
-    const updatedRecord = await RecommendationQueue.findOne({
+    const recommendationQueue = await RecommendationQueue.findOne({
       where: { jobId },
     });
 
+    if (recommendationQueue) {
+      await recommendationQueue.update({
+        status,
+        updatedAt: new Date(),
+      });
+    }
+
     logger.info(
-      { jobId, status, processingTime, recordId: updatedRecord?.id },
+      { jobId, status, processingTime, recordId: recommendationQueue?.id },
       "updateQueue: Successfully updated queue status"
     );
 
-    return updatedRecord;
+    return recommendationQueue;
   } catch (err) {
     logger.error(
       { error: err, jobId, status },

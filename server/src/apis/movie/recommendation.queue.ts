@@ -23,7 +23,7 @@ const worker = new Worker(
     const startTime = Date.now();
     const jobs = await movieRecommendationQueue.getJobs(["waiting"], 0, 100);
 
-    logger.debug(
+    logger.info(
       { waitingJobs: jobs.length },
       "Movie recommendation queue: checking waiting jobs"
     );
