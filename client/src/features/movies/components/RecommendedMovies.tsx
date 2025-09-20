@@ -14,12 +14,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { RootState } from "@/store";
 import { useGetRecommendationsQuery, useGetFavoritesQuery } from "../movie.api";
-import { useAuthError } from "@/hooks/useAuthError";
 
 export function RecommendedMovies() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const { handleAuthError } = useAuthError();
 
   // Edge detection state
   const [canScrollLeft, setCanScrollLeft] = useState(false);

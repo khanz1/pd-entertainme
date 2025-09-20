@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Shield, Clock, RefreshCw } from "lucide-react";
+import { Loader2, Shield, Clock } from "lucide-react";
 import type { RootState } from "@/store";
 import { useGetUserMeQuery } from "@/features/auth/auth.api";
 
@@ -14,7 +14,7 @@ export function TokenRefreshDemo() {
   const [lastLogin, setLastLogin] = useState<Date | null>(null);
 
   // Get user data to test authentication
-  const { data, isLoading, error, refetch } = useGetUserMeQuery(undefined, {
+  const { isLoading, error, refetch } = useGetUserMeQuery(undefined, {
     skip: !isAuthenticated,
   });
 
