@@ -12,6 +12,7 @@ import { BadRequestError } from "../../utils/error";
 import { movieRecommendationQueue } from "../movie/recommendation.queue";
 import { QueueJobName } from "../../queue";
 import { Env } from "../../config/env";
+import { addQueue } from "apis/movie/recommendation.service";
 // import { GetFavoriteByIdSchema } from "./schema/get.schema";
 
 export enum FavoriteError {
@@ -153,6 +154,7 @@ export const createFavorite = withErrorHandler<AuthenticatedRequest>(
       });
 
       if (Env.NODE_ENV !== "test") {
+        await addQueue(req.user!.id);
         await movieRecommendationQueue.add(QueueJobName.MOVIE_RECOMMENDATION, {
           userId: req.user!.id,
         });
@@ -599,6 +601,7 @@ export const deleteFavorite = withErrorHandler<AuthenticatedRequest>(
     });
 
     if (Env.NODE_ENV !== "test") {
+      await addQueue(req.user!.id);
       await movieRecommendationQueue.add(QueueJobName.MOVIE_RECOMMENDATION, {
         userId: req.user!.id,
       });

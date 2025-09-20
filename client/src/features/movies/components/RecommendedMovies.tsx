@@ -244,11 +244,13 @@ export function RecommendedMovies() {
               </div>
             ))
           : recommendations.map((recommendation) => (
-              <MovieCard
-                key={recommendation.id}
-                movie={recommendation.movie}
-                className="flex-shrink-0 w-48"
-              />
+              <div key={recommendation.id} className="flex-shrink-0 w-48">
+                <MovieCard
+                  movie={recommendation.movie}
+                  aiReason={recommendation.reason}
+                  className="w-full"
+                />
+              </div>
             ))}
       </div>
 

@@ -31,7 +31,7 @@ import type { Request, Response } from "express";
  *               status: "error"
  *               message: "Service temporarily unavailable"
  */
-export const getHealth = (req: Request, res: Response) => {
+export const getHealth = (_req: Request, res: Response) => {
   res.status(200).json({
     status: "healthy",
     timestamp: new Date().toISOString(),

@@ -23,18 +23,6 @@ class Favorite
   public movie!: Movie;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
-  // Serialize to camelCase for JSON responses
-  // public override toJSON(): object {
-  //   const values = { ...this.get() };
-  //   return {
-  //     id: values.id,
-  //     userId: values.userId,
-  //     movieId: values.movieId,
-  //     createdAt: values.createdAt,
-  //     updatedAt: values.updatedAt,
-  //   };
-  // }
 }
 
 Favorite.init(

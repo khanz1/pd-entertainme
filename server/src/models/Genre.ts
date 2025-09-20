@@ -21,18 +21,6 @@ class Genre
   public name!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
-  // Serialize to camelCase for JSON responses
-  // public override toJSON(): object {
-  //   const values = { ...this.get() };
-  //   return {
-  //     id: values.id,
-  //     tmdbId: values.tmdbId,
-  //     name: values.name,
-  //     createdAt: values.createdAt,
-  //     updatedAt: values.updatedAt,
-  //   };
-  // }
 }
 
 Genre.init(
@@ -46,7 +34,6 @@ Genre.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
-      // field: "tmdb_id", // Maps to snake_case column in DB
       validate: {
         notNull: true,
         isInt: true,

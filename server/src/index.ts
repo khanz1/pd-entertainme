@@ -6,7 +6,7 @@ const port = Env.PORT;
 async function bootstrap() {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ force: Env.DATABASE_FORCE_SYNC });
 
     console.log("🌐 Starting HTTP server...");
     app.listen(port, () => {

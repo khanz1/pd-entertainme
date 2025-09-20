@@ -1,0 +1,38 @@
+{
+  "name": "pd-entertainme",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PD EntertainMe monorepo: server (API) and client (Vite React).",
+  "author": {
+    "name": "Angga Maulana",
+    "email": "assistance.xavier@gmail.com",
+    "url": "https://khanz1.dev"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khanz1/pd-entertainme.git"
+  },
+  "bugs": {
+    "url": "https://github.com/khanz1/pd-entertainme/issues"
+  },
+  "homepage": "https://github.com/khanz1/pd-entertainme#readme",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "bash ./scripts/dev.sh",
+    "prod": "bash ./scripts/prod.sh",
+    "compose:dev": "docker compose -f docker-compose.yml up --build -d",
+    "compose:prod": "docker compose -f docker-compose.prod.yml up --build -d",
+    "compose:down": "docker compose down --remove-orphans",
+    "logs": "docker compose logs -f --tail=100",
+    "server:dev": "npm --prefix server run dev",
+    "server:build": "npm --prefix server run build",
+    "server:start": "npm --prefix server run start",
+    "client:dev": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
+    "client:preview": "npm --prefix client run preview"
+  }
+}

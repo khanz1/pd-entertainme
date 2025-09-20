@@ -11,19 +11,7 @@ import { logger } from "./utils/logger";
 
 const app = express();
 
-// Request logging middleware
-app.use((req, res, next) => {
-  logger.info(
-    {
-      method: req.method,
-      url: req.url,
-      path: req.path,
-      userAgent: req.get("User-Agent"),
-    },
-    `${req.method} ${req.path}`
-  );
-  next();
-});
+app.use(morgan("combined"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,12 +23,10 @@ app.use(
   })
 );
 
-// Root redirect to documentation
 app.get("/", (_req, res) => {
   res.redirect("/api/docs");
 });
 
-// Swagger UI Documentation - Always available
 app.use(
   "/api/docs",
   swaggerUi.serve,
@@ -97,35 +83,11 @@ app.use(
       supportedSubmitMethods: ["get", "post", "put", "delete", "patch"],
       validatorUrl: null,
       url: "/api/docs.json",
-      // Ensure Swagger works in production
       layout: "StandaloneLayout",
     },
   })
 );
 
-// API Documentation JSON
-// app.get("/api/docs.json", (req, res) => {
-//   res.setHeader("Content-Type", "application/json");
-//   res.send(swaggerSpecs);
-// });
-
-// Debug endpoint to check swagger specs in development
-// if (Env.NODE_ENV === "development") {
-//   app.get("/api/debug/swagger", (req, res) => {
-//     const specs = swaggerSpecs as any;
-//     res.json({
-//       message: "Swagger Specs Debug Info",
-//       specsExists: !!swaggerSpecs,
-//       pathsCount: specs?.paths ? Object.keys(specs.paths).length : 0,
-//       paths: specs?.paths ? Object.keys(specs.paths) : [],
-//       tags: specs?.tags || [],
-//       environment: Env.NODE_ENV,
-//       swaggerVersion: specs?.openapi || specs?.swagger,
-//     });
-//   });
-// }
-
-// Root API endpoint with documentation link
 app.get("/api", (req, res) => {
   logger.info("API root endpoint accessed");
   res.json({

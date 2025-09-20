@@ -13,24 +13,17 @@ export const AuthenticatedUser = new Map<number, User>();
 export const authenticatation = withErrorHandler<AuthenticatedRequest>(
   async (req, res, next) => {
     const bearerToken = req.get("Authorization");
-    console.log(`1 >> ${bearerToken}`);
     if (!bearerToken) {
       throw new UnauthorizedError(AuthenticationError.INVALID_TOKEN);
     }
     const token = bearerToken?.split(" ")[1];
-    console.log(`2 >> ${token}`);
     if (!token) {
       throw new UnauthorizedError(AuthenticationError.INVALID_TOKEN);
     }
     const decoded = verifyToken<{ id: number }>(token);
-    console.log(`3 >>`, decoded);
     let user = AuthenticatedUser.get(decoded.id);
-    console.log(`4 >>`, user);
-    const s = await User.findAll();
-    console.log(`5 >>`, s);
     if (!user) {
       const newUser = await User.findByPk(decoded.id);
-      console.log(`6 >>`, newUser);
       if (!newUser) {
         throw new UnauthorizedError(AuthenticationError.INVALID_TOKEN);
       }
@@ -38,7 +31,6 @@ export const authenticatation = withErrorHandler<AuthenticatedRequest>(
       AuthenticatedUser.set(decoded.id, user);
     }
     req.user = user;
-    console.log(`7 >>`, req.user);
     next();
   }
 );

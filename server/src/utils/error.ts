@@ -4,8 +4,6 @@ import { ZodError } from "zod";
 import { ApiResponseStatus } from "../apis/app.type";
 import { UniqueConstraintError, ValidationError } from "sequelize";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
-import { AxiosError } from "axios";
-// Note: avoid importing from middleware to prevent circular dependencies
 
 export interface ApiError extends Error {
   statusCode: number;

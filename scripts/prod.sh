@@ -18,7 +18,7 @@ docker rm -f pd-entertainme-server || true
 
 # Tear down any compose stack and free ports
 cd ~/app
-docker-compose -f docker-compose.prod.yml down --remove-orphans || true
+docker-compose -f docker-compose.prod.yml down
 
 # Build and start services
 echo "🔨 Building server image (no cache, pull latest base image)..."

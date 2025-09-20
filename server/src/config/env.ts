@@ -38,6 +38,9 @@ const EnvSchema = z.object({
     .default(
       "postgresql://postgres:postgres@localhost:5432/pd_entertainme_db_test"
     ),
+  DATABASE_FORCE_SYNC: z
+    .boolean({ error: "DATABASE_FORCE_SYNC is required" })
+    .default(false),
   JWT_SECRET: z.string({ error: "JWT_SECRET is required" }).default("secret"),
   JWT_EXPIRES_IN: z
     .string({ error: "JWT_EXPIRES_IN is required" })

@@ -13,16 +13,14 @@ export const useAuthError = () => {
   );
 
   useEffect(() => {
-    // Check if user was logged out due to authentication failure
     const wasAuthenticated = localStorage.getItem("wasAuthenticated");
 
     if (wasAuthenticated === "true" && !isAuthenticated) {
-      // User was automatically logged out due to token issues
       localStorage.removeItem("wasAuthenticated");
+      dispatch(logout());
       toast.error("Your session has expired. Please log in again.");
     }
 
-    // Set flag when user is authenticated
     if (isAuthenticated) {
       localStorage.setItem("wasAuthenticated", "true");
     } else {
@@ -32,12 +30,12 @@ export const useAuthError = () => {
 
   const handleAuthError = () => {
     if (!isAuthenticated) {
+      dispatch(logout());
       toast.error("Please log in to access this feature");
       navigate("/login");
       return true;
     }
 
-    // Check if token is invalid
     if (!accessToken) {
       dispatch(logout());
       toast.error("Your session has expired. Please log in again.");

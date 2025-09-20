@@ -39,10 +39,6 @@ export const calculateRecommendations = async (userId: number) => {
       "calculateRecommendations: Starting with user's favorite movie references"
     );
 
-    const MovieRecommendation = z.object({
-      recommendation: z.array(z.string()),
-    });
-
     // generate a prompt for the openai api - result all recommendations movie min 5 max 15 - movie title only
     const prompt = getPrompt(movieTitles);
 
@@ -71,7 +67,18 @@ export const calculateRecommendations = async (userId: number) => {
           schema: {
             type: "object",
             properties: {
-              recommendation: { type: "array", items: { type: "string" } },
+              recommendation: {
+                type: "array",
+                items: {
+                  required: ["title", "reason"],
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    reason: { type: "string" },
+                  },
+                  additionalProperties: false,
+                },
+              },
             },
             required: ["recommendation"],
             additionalProperties: false,
@@ -94,7 +101,7 @@ export const calculateRecommendations = async (userId: number) => {
     }
 
     // search movie using tmdb api /search/movie
-    const recommendations = (data as z.infer<typeof MovieRecommendation>)
+    const recommendations = (data as { recommendation: { title: string; reason: string }[] })
       .recommendation;
     const movies = [];
     for (const recommendation of recommendations) {
@@ -102,7 +109,7 @@ export const calculateRecommendations = async (userId: number) => {
         { recommendation, userId },
         "calculateRecommendations: Searching for movie in TMDB"
       );
-      const movie = await movieService.searchMovieFromTMDB(recommendation);
+      const movie = await movieService.searchMovieFromTMDB(recommendation.title);
       if (movie.results.length > 0) {
         const movieDetail = await movieService.getMovieFromTMDBById(
           movie.results[0].id
@@ -116,7 +123,11 @@ export const calculateRecommendations = async (userId: number) => {
           movieDetail
         );
 
-        movies.push(createdMovie);
+        movies.push({
+          recommendationTitle: recommendation.title,
+          recommendationReason: recommendation.reason,
+          movie: createdMovie,
+        });
       }
     }
 
@@ -138,11 +149,12 @@ export const calculateRecommendations = async (userId: number) => {
       await Recommendation.findOrCreate({
         where: {
           userId,
-          movieId: movie.id,
+          movieId: movie.movie.id,
         },
         defaults: {
           userId,
-          movieId: movie.id,
+          movieId: movie.movie.id,
+          reason: movie.recommendationReason,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -215,9 +227,11 @@ export const addQueue = async (userId: number) => {
   }
 };
 
+export type TQueueStatus = "queue" | "process" | "done";
+
 export const updateQueue = async (
   jobId: string,
-  status: "process" | "done",
+  status: TQueueStatus,
   processingTime?: number
 ) => {
   try {
@@ -227,7 +241,7 @@ export const updateQueue = async (
     );
 
     const updateData: Partial<{
-      status: "queue" | "process" | "done";
+      status: TQueueStatus;
       processingTime: number;
       updatedAt: Date;
     }> = {

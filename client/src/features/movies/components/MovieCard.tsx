@@ -1,13 +1,14 @@
-import { Link } from "react-router";
-import { Star, Calendar, Eye } from "lucide-react";
+import { Star, Calendar, Eye, Sparkles } from "lucide-react";
 import type { Movie } from "../movie.type";
+import { Link } from "react-router";
 
 interface MovieCardProps {
   movie: Movie;
   className?: string;
+  aiReason?: string;
 }
 
-export function MovieCard({ movie, className = "" }: MovieCardProps) {
+export function MovieCard({ movie, className = "", aiReason }: MovieCardProps) {
   const formatRating = (rating: number) => {
     return rating.toFixed(1);
   };
@@ -26,9 +27,10 @@ export function MovieCard({ movie, className = "" }: MovieCardProps) {
   };
 
   return (
-    <Link to={`/movies/${movie.tmdbId}`} className={`group ${className}`}>
-      <div className="bg-card h-full rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 transform">
-        {/* Movie Poster */}
+    <Link to={`/movies/${movie.tmdbId}`} className={className}>
+      <div
+        className={`group bg-card h-full rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 transform ${className}`}
+      >
         <div className="relative aspect-[2/3] overflow-hidden">
           <img
             src={
@@ -51,16 +53,41 @@ export function MovieCard({ movie, className = "" }: MovieCardProps) {
             </div>
           )}
 
-          {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-            <div className="text-white text-center p-4">
-              <Eye className="h-8 w-8 mx-auto mb-2" />
-              <p className="text-sm font-medium">View Details</p>
+          {/* AI Badge */}
+          {aiReason && (
+            <div className="absolute top-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100 flex items-center gap-1 z-10">
+              <Sparkles className="h-3 w-3" />
+              AI
             </div>
-          </div>
+          )}
+
+          {/* Hover Overlay */}
+          {aiReason ? (
+            // AI Recommendation Overlay
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-4">
+              <div className="text-white transform translate-y-6 group-hover:translate-y-0 transition-transform duration-300 delay-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-4 w-4 text-yellow-400" />
+                  <span className="text-sm font-bold text-yellow-400">
+                    AI Recommendation
+                  </span>
+                </div>
+                <p className="text-xs leading-relaxed text-gray-100 line-clamp-4">
+                  {aiReason}
+                </p>
+              </div>
+            </div>
+          ) : (
+            // Regular View Details Overlay
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div className="text-white text-center p-4">
+                <Eye className="h-8 w-8 mx-auto mb-2" />
+                <p className="text-sm font-medium">View Details</p>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Movie Info */}
         <div className="p-4 h-full">
           <h3 className="font-semibold text-sm mb-2 group-hover:text-primary transition-colors line-clamp-1">
             {movie.title}
