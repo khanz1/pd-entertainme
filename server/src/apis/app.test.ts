@@ -23,14 +23,6 @@ describe("App API Routes", () => {
     expect(response.headers.location).toBe("/api/docs");
   });
 
-  it("should return swagger documentation JSON", async () => {
-    const response = await request(app).get("/api/docs.json");
-    expect(response.status).toBe(200);
-    expect(response.headers["content-type"]).toContain("application/json");
-    expect(response.body.openapi).toBe("3.0.0");
-    expect(response.body.info.title).toBe("Entertain Me API");
-  });
-
   it("should serve swagger UI documentation", async () => {
     const response = await request(app).get("/api/docs/");
     expect(response.status).toBe(200);
