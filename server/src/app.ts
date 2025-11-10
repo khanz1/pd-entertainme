@@ -9,7 +9,7 @@ import swaggerSpecs from "./config/swagger";
 import { Env } from "./config/env";
 import { logger } from "./utils/logger";
 
-const app = express();
+const app = express()
 
 app.set("trust proxy", true);
 
