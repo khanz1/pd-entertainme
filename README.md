@@ -27,6 +27,8 @@
 - [Getting Started](#-getting-started)
 - [Deployment](#-deployment)
 
+- [Linked Flex Post](#-linked-flex-post)
+
 ## 📄 Product Requirements Document (PRD)
 
 ### 🎯 Vision Statement

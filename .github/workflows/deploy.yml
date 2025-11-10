@@ -47,10 +47,6 @@ jobs:
             echo "🚀 Running production deployment script..."
             ./scripts/prod.sh
 
-            # Wait a bit for services to stabilize
-            echo "⏳ Waiting for services to stabilize..."
-            sleep 10
-
             # Perform additional health checks
             echo "🔍 Performing health checks..."
 
